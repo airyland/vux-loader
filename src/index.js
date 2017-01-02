@@ -184,9 +184,7 @@ module.exports.merge = function (oldConfig, vuxConfig) {
     vuxLocalesJson = Object.assign(vuxLocalesJson, globalConfigLocalesJson)
     if (isWebpack2) {
       config.plugins.push(new webpack.LoaderOptionsPlugin({
-        options: {
-          vuxLocales: vuxLocalesJson
-        }
+        vuxLocales: vuxLocalesJson
       }))
     } else {
       config = merge(config, {
@@ -364,4 +362,20 @@ function getLessVariables(theme) {
     variables[key] = value
   })
   return variables
+}
+
+function setWebpackConfig(oriConfig, appendConfig, isWebpack2) {
+  if (isWebpack2) {
+    oriConfig.plugins.push(new webpack.LoaderOptionsPlugin(appendConfig))
+  } else {
+    oriConfig = merge(oriConfig, appendConfig)
+  }
+  return oriConfig
+}
+
+function getOnePlugin(name, plugins) {
+  const matches = plugins.filter(function (one) {
+    return one.name === name
+  })
+  return matches.length ? matches[0] : null
 }

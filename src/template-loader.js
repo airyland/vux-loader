@@ -64,6 +64,25 @@ module.exports = function (source) {
 
   config.plugins.forEach(function (plugin) {
 
+    // template-feature-switch
+    /**
+    <off feature="false"> show
+    <on feature="true"> show
+
+    <off feature="true"> hide
+    <on feature="false"> hide
+    */
+
+    if (plugin.name === 'template-feature-switch') {
+      // replace features
+      if (plugin.features && source.indexOf('</on>') > -1) {
+        source = parseOnFeature(source, plugin.features)
+      }
+      if (plugin.features && source.indexOf('</off>') > -1) {
+        source = parseOffFeature(source, plugin.features)
+      }
+    }
+
     // 非 vux 组件才需要生成语言
     if (!isVuxVueFile && plugin.name === 'i18n') {
       const globalConfigPath = 'src/global_locales.yml'
@@ -94,22 +113,21 @@ module.exports = function (source) {
             try {
               const local = yamlReader.safeLoad(results[1])
                 // 读取已经存在的语言文件
-            let finalConfig = {}
-            let currentConfig = fs.readFileSync(filePath, 'utf-8')
-            if (!currentConfig) {
-              finalConfig = local
-            } else {
-              finalConfig = Object.assign(yamlReader.safeLoad(currentConfig), local)
-            }
+              let finalConfig = {}
+              let currentConfig = fs.readFileSync(filePath, 'utf-8')
+              if (!currentConfig) {
+                finalConfig = local
+              } else {
+                finalConfig = Object.assign(yamlReader.safeLoad(currentConfig), local)
+              }
 
-            if (currentConfig && JSON.stringify(yamlReader.safeLoad(currentConfig)) !== JSON.stringify(finalConfig)) {
-              fs.writeFileSync(filePath, yamlReader.safeDump(finalConfig))
-            }
-            } catch(e){
+              if (currentConfig && JSON.stringify(yamlReader.safeLoad(currentConfig)) !== JSON.stringify(finalConfig)) {
+                fs.writeFileSync(filePath, yamlReader.safeDump(finalConfig))
+              }
+            } catch (e) {
               console.log('yml 格式有误，请重新检查')
             }
-            
-            
+
           }
         })
       }
@@ -163,4 +181,52 @@ module.exports = function (source) {
   })
 
   return source
+}
+
+function parseOnFeature(content, features) {
+  content = content.replace(/<on[^>]*>([\s\S]*?)<\/on>/g, function (tag, text) {
+    const key = tag.split('\n')[0].replace('<on', '')
+      .replace('>', '')
+      .replace(/"/g, '')
+      .replace(/\r/g, '')
+      .split(' ')
+      .filter(function (one) {
+        return !!one
+      }).map(function (one) {
+        let tmp = one.split('=')
+        return tmp[1]
+      })
+    if (features[key] && features[key] === true) {
+      // true
+      return text
+    } else {
+      // false
+      return ''
+    }
+  })
+  return content
+}
+
+function parseOffFeature(content, features) {
+  content = content.replace(/<off[^>]*>([\s\S]*?)<\/off>/g, function (tag, text) {
+    const key = tag.split('\n')[0].replace('<off', '')
+      .replace('>', '')
+      .replace(/"/g, '')
+      .replace(/\r/g, '')
+      .split(' ')
+      .filter(function (one) {
+        return !!one
+      }).map(function (one) {
+        let tmp = one.split('=')
+        return tmp[1]
+      })
+    if (!features[key]) {
+      // false
+      return text
+    } else {
+      // true
+      return ''
+    }
+  })
+  return content
 }

@@ -172,6 +172,33 @@ describe('vux-loader', function () {
 
   })
 
+  describe('plugin:template-feature-switch', function () {
+
+    it('basic', function (done) {
+      test({
+        entry: './test/vux-fixtures/template-feature-switch-basic.vue'
+      }, {
+        plugins: [{
+          name: 'template-feature-switch',
+          features: {
+            FEATURE1: true,
+            FEATURE2: false
+          }
+        }]
+      }, function (window, module, rawModule) {
+        var vnode = mockRender(module, {
+          msg: 'hi'
+        })
+        
+        expect(vnode.tag).to.equal('div')
+        expect(vnode.children[0].indexOf('ON FEATURE1') > -1).to.equal(true)
+        expect(vnode.children[0].indexOf('OFF FEATURE2') > -1).to.equal(true)
+        done()
+      })
+    })
+
+  })
+
   describe('plugin:script-parser', function () {
 
     it('fn function should work', function (done) {
