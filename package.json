@@ -1,7 +1,29 @@
 {
   "name": "vux-loader",
-  "version": "0.0.5",
+  "version": "1.0.0",
+  "description": "extended loader for vue-loader",
   "main": "src/index.js",
+  "keywords": [
+    "vux",
+    "vue",
+    "vue-loader",
+    "vux-loader",
+    "webpack-loader",
+    "weui",
+    "vue-components",
+    "web-components",
+    "component",
+    "components",
+    "mobile ui",
+    "framework",
+    "frontend"
+  ],
+  "author": "airyland <airyland@qq.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/airyland/vux-loader"
+  },
+  "license": "MIT",
   "scripts": {
     "test": "mocha test/test.js --slow 5000 --timeout 15000"
   },
