@@ -171,28 +171,29 @@ module.exports.merge = function (oldConfig, vuxConfig) {
   /**
    * ======== read vux locales and set globally ========
    */
-  const vuxLocalesPath = path.resolve(vuxConfig.options.projectRoot, 'node_modules/vux/src/locales/all.yml')
+  if (hasPlugin('vux-ui', vuxConfig.plugins)) {
+    const vuxLocalesPath = path.resolve(vuxConfig.options.projectRoot, 'node_modules/vux/src/locales/all.yml')
 
-  try {
-    const vuxLocalesContent = fs.readFileSync(vuxLocalesPath, 'utf-8')
-    let vuxLocalesJson = yaml.safeLoad(vuxLocalesContent)
+    try {
+      const vuxLocalesContent = fs.readFileSync(vuxLocalesPath, 'utf-8')
+      let vuxLocalesJson = yaml.safeLoad(vuxLocalesContent)
 
-    const globalConfigLocalesPath = path.resolve(vuxConfig.options.projectRoot, 'src/global_locales.yml')
-    const globalConfigLocalesContent = fs.readFileSync(globalConfigLocalesPath, 'utf-8')
-    const globalConfigLocalesJson = yaml.safeLoad(globalConfigLocalesContent)
+      const globalConfigLocalesPath = path.resolve(vuxConfig.options.projectRoot, 'src/global_locales.yml')
+      const globalConfigLocalesContent = fs.readFileSync(globalConfigLocalesPath, 'utf-8')
+      const globalConfigLocalesJson = yaml.safeLoad(globalConfigLocalesContent)
 
-    vuxLocalesJson = Object.assign(vuxLocalesJson, globalConfigLocalesJson)
-    if (isWebpack2) {
-      config.plugins.push(new webpack.LoaderOptionsPlugin({
-        vuxLocales: vuxLocalesJson
-      }))
-    } else {
-      config = merge(config, {
-        vuxLocales: vuxLocalesJson
-      })
+      vuxLocalesJson = Object.assign(vuxLocalesJson, globalConfigLocalesJson)
+      if (isWebpack2) {
+        config.plugins.push(new webpack.LoaderOptionsPlugin({
+          vuxLocales: vuxLocalesJson
+        }))
+      } else {
+        config = merge(config, {
+          vuxLocales: vuxLocalesJson
+        })
+      }
+    } catch (e) {
     }
-  } catch (e) {
-    // console.log(e)
   }
 
   /**

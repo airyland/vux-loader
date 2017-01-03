@@ -18,7 +18,13 @@ module.exports = function (source) {
     }
   })
 
-  source = importParser(source, config)
+  let matchVuxUi = config.plugins.filter(function(one){
+    return one.name === 'vux-ui'
+  })
+  if (matchVuxUi.length) {
+    source = importParser(source, config)
+  }
+
   return source
 }
 
