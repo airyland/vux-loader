@@ -41,6 +41,14 @@ function importParser(source, config) {
     })
     let str = ''
     str = components.map(function (item) {
+      let importName = item
+      if (/as/.test(item)) {
+        let _items = item.split('as')
+        if (source.indexOf(`${_items[0]} as`) > -1 || source.indexOf(`${_items[0]}  as`) > -1) {
+          item = _items[0]
+          importName = _items[1]
+        }
+      }
       if(item === 'ChinaAddressData') {
         return `import ChinaAddressData from 'vux/src/datas/china_address.json'`
       } else if (/Item/.test(item)) {
@@ -56,7 +64,11 @@ function importParser(source, config) {
         } else if(item === 'SwiperItem' && components.indexOf('Swiper') === -1){ // 单个引入 SwiperItem
           return `import SwiperItem from 'vux/src/components/swiper/swiper-item.vue'`
         }else{
-          return `import ${item} from 'vux/src/components/${name}'`
+          let modules = `${item}`
+          if (importName !== item) {
+            modules = `${importName}`
+          }
+          return `import ${modules} from 'vux/src/components/${name}'`
         }
       }
     }).join('\n')
