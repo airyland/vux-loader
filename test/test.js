@@ -51,8 +51,18 @@ function bundle(options, vuxOptions, cb) {
       isTest: true
     }
   }
-  vuxOptions = Object.assign(basicVux, vuxOptions) || basicVux
-  config = vuxLoader.merge(config, vuxOptions)
+
+  if (vuxOptions.options) {
+    for (let i in vuxOptions.options) {
+      basicVux.options[i]  =  vuxOptions.options[i]
+    }
+  }
+
+  if (vuxOptions.plugins) {
+    basicVux.plugins = vuxOptions.plugins
+  }
+  
+  config = vuxLoader.merge(config, basicVux)
 
   var webpackCompiler = webpack(config)
 
@@ -189,7 +199,7 @@ describe('vux-loader', function () {
         var vnode = mockRender(module, {
           msg: 'hi'
         })
-        
+
         expect(vnode.tag).to.equal('div')
         expect(vnode.children[0].indexOf('ON FEATURE1') > -1).to.equal(true)
         expect(vnode.children[0].indexOf('OFF FEATURE2') > -1).to.equal(true)
@@ -217,6 +227,30 @@ describe('vux-loader', function () {
         })
         expect(vnode.tag).to.equal('p')
         expect(module.data().msg).to.equal('BBBB')
+        done()
+      })
+    })
+
+    it('fn function should not work with env', function (done) {
+      test({
+        entry: './test/vux-fixtures/script-parser-fn.vue'
+      }, {
+        options: {
+          env: 'test'
+        },
+        plugins: [{
+          name: 'script-parser',
+          envs: ['production'],
+          fn: function (source) {
+            return source.replace('AAAA', 'BBBB')
+          }
+        }]
+      }, function (window, module, rawModule) {
+        var vnode = mockRender(module, {
+          msg: 'hi'
+        })
+        expect(vnode.tag).to.equal('p')
+        expect(module.data().msg).to.equal('AAAA')
         done()
       })
     })

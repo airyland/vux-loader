@@ -96,7 +96,6 @@ function getFirstPlugin(name, list) {
 
 // merge vux options and return new webpack config
 module.exports.merge = function (oldConfig, vuxConfig) {
-
   let config = Object.assign({
     module: {},
     plugins: []
@@ -111,6 +110,13 @@ module.exports.merge = function (oldConfig, vuxConfig) {
 
   if (!vuxConfig.options) {
     vuxConfig.options = {}
+  }
+
+  // filter plugins by env
+  if (vuxConfig.options.env && vuxConfig.plugins.length) {
+    vuxConfig.plugins = vuxConfig.plugins.filter(function (plugin) {
+      return typeof plugin.envs === 'undefined' || (typeof plugin.envs === 'object' && plugin.envs.length && plugin.envs.indexOf(vuxConfig.options.env) > -1)
+    })
   }
 
   let canLog = true
@@ -192,8 +198,7 @@ module.exports.merge = function (oldConfig, vuxConfig) {
           vuxLocales: vuxLocalesJson
         })
       }
-    } catch (e) {
-    }
+    } catch (e) {}
   }
 
   /**

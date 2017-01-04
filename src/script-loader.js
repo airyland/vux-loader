@@ -9,20 +9,21 @@ module.exports = function (source) {
     return source
   }
 
-  config.plugins.forEach(function (plugin) {
-    // script-parser
-    if (plugin.name === 'script-parser') {
-      if (plugin.fn) {
-        source = plugin.fn.call(plugin.fn, source)
+  if (config.plugins.length) {
+    config.plugins.forEach(function (plugin) {
+      // script-parser
+      if (plugin.name === 'script-parser') {
+        if (plugin.fn) {
+          source = plugin.fn.call(plugin.fn, source)
+        }
       }
+    })
+    let matchVuxUi = config.plugins.filter(function (one) {
+      return one.name === 'vux-ui'
+    })
+    if (matchVuxUi.length) {
+      source = importParser(source, config)
     }
-  })
-
-  let matchVuxUi = config.plugins.filter(function(one){
-    return one.name === 'vux-ui'
-  })
-  if (matchVuxUi.length) {
-    source = importParser(source, config)
   }
 
   return source
@@ -49,7 +50,7 @@ function importParser(source, config) {
           importName = _items[1]
         }
       }
-      if(item === 'ChinaAddressData') {
+      if (item === 'ChinaAddressData') {
         return `import ChinaAddressData from 'vux/src/datas/china_address.json'`
       } else if (/Item/.test(item)) {
         return ''
@@ -59,11 +60,11 @@ function importParser(source, config) {
         }).slice(1)
         if (components.indexOf(item + 'Item') > 0) { // 子组件一起引入
           return `import { ${item}, ${item}Item } from 'vux/src/components/${name}'`
-        } else if(item === 'Swiper' && components.indexOf('SwiperItem') === -1){ // 单个引入 Swiper
+        } else if (item === 'Swiper' && components.indexOf('SwiperItem') === -1) { // 单个引入 Swiper
           return `import Swiper from 'vux/src/components/swiper/swiper.vue'`
-        } else if(item === 'SwiperItem' && components.indexOf('Swiper') === -1){ // 单个引入 SwiperItem
+        } else if (item === 'SwiperItem' && components.indexOf('Swiper') === -1) { // 单个引入 SwiperItem
           return `import SwiperItem from 'vux/src/components/swiper/swiper-item.vue'`
-        }else{
+        } else {
           let modules = `${item}`
           if (importName !== item) {
             modules = `${importName}`
