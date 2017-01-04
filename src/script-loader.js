@@ -50,8 +50,9 @@ function importParser(source, config) {
           importName = _items[1]
         }
       }
-      if (item === 'ChinaAddressData') {
-        return `import ChinaAddressData from 'vux/src/datas/china_address.json'`
+      if(/Data$/.test(item)) {
+        let fileName = camelCaseToDash(item.replace(/Data$/,''))
+        return `import ${item} from 'vux/src/datas/${fileName}.json'`
       } else if (/Item/.test(item)) {
         return ''
       } else {
@@ -77,4 +78,8 @@ function importParser(source, config) {
   })
 
   return source
+}
+
+function camelCaseToDash (str) {
+  return str.replace( /([a-z])([A-Z])/g, '$1_$2' ).toLowerCase()
 }
