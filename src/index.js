@@ -177,7 +177,7 @@ module.exports.merge = function (oldConfig, vuxConfig) {
   /**
    * ======== create locale file ========
    */
-  if (hasPlugin('i18n', vuxConfig.plugins)) {
+  if (hasPlugin('vux-i18n', vuxConfig.plugins)) {
     const mkdirp = require('mkdirp')
     const touch = require('touch')
     const dir = path.resolve(vuxConfig.options.projectRoot, 'src/locales')

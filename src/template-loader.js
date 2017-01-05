@@ -28,7 +28,7 @@ module.exports = function (source) {
   let locale = 'zh-CN'
     // 如果不设置, dynamic 为false, local 为 zh-CN
   const i18nPluginsMatch = config.plugins.filter(function (one) {
-    return one.name === 'i18n'
+    return one.name === 'vux-i18n'
   })
   if (i18nPluginsMatch.length) {
     dynamic = !!i18nPluginsMatch[0].dynamic
@@ -84,7 +84,7 @@ module.exports = function (source) {
     }
 
     // 非 vux 组件才需要生成语言
-    if (!isVuxVueFile && plugin.name === 'i18n') {
+    if (!isVuxVueFile && plugin.name === 'vux-i18n') {
       const globalConfigPath = 'src/locales/global_locales.yml'
       const componentsConfigPath = 'src/locales/components_locales.yml'
       const isDynamic = !!plugin.dynamic
