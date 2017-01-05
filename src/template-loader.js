@@ -85,8 +85,8 @@ module.exports = function (source) {
 
     // 非 vux 组件才需要生成语言
     if (!isVuxVueFile && plugin.name === 'i18n') {
-      const globalConfigPath = 'src/global_locales.yml'
-      const componentsConfigPath = 'src/components_locales.yml'
+      const globalConfigPath = 'src/locales/global_locales.yml'
+      const componentsConfigPath = 'src/locales/components_locales.yml'
       const isDynamic = !!plugin.dynamic
 
       if (isDynamic) {
@@ -120,8 +120,7 @@ module.exports = function (source) {
               } else {
                 finalConfig = Object.assign(yamlReader.safeLoad(currentConfig), local)
               }
-
-              if (currentConfig && JSON.stringify(yamlReader.safeLoad(currentConfig)) !== JSON.stringify(finalConfig)) {
+              if (!currentConfig || (currentConfig && JSON.stringify(yamlReader.safeLoad(currentConfig)) !== JSON.stringify(finalConfig))) {
                 fs.writeFileSync(filePath, yamlReader.safeDump(finalConfig))
               }
             } catch (e) {

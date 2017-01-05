@@ -175,6 +175,19 @@ module.exports.merge = function (oldConfig, vuxConfig) {
   }
 
   /**
+   * ======== create locale file ========
+   */
+  if (hasPlugin('i18n', vuxConfig.plugins)) {
+    const mkdirp = require('mkdirp')
+    const touch = require('touch')
+    const dir = path.resolve(vuxConfig.options.projectRoot, 'src/locales')
+    mkdirp.sync(dir)
+    touch.sync(path.resolve(dir, 'global_locales.yml'))
+    touch.sync(path.resolve(dir, 'components_locales.yml'))
+  }
+
+
+  /**
    * ======== read vux locales and set globally ========
    */
   if (hasPlugin('vux-ui', vuxConfig.plugins)) {
