@@ -12,6 +12,7 @@ var webpack = require('webpack')
 const scriptLoader = path.join(__dirname, './script-loader.js')
 const styleLoader = path.join(__dirname, './style-loader.js')
 const templateLoader = path.join(__dirname, './template-loader.js')
+const jsLoader = path.join(__dirname, './js-loader.js')
 
 const projectRoot = path.resolve(__dirname, '../../../')
 
@@ -153,6 +154,9 @@ module.exports.merge = function (oldConfig, vuxConfig) {
 
   let loaderKey = isWebpack2 ? 'rules' : 'loaders'
 
+  const useVuxUI = hasPlugin('vux-ui', vuxConfig.plugins)
+  vuxConfig.options.useVuxUI = true
+
   /**
    * ======== set vux options ========
    */
@@ -186,6 +190,19 @@ module.exports.merge = function (oldConfig, vuxConfig) {
     touch.sync(path.resolve(dir, 'components_locales.yml'))
   }
 
+  if (hasPlugin('vux-ui', vuxConfig.plugins)) {
+    const mapPath = path.resolve(vuxConfig.options.projectRoot, 'node_modules/vux/src/components/map.json')
+    const maps = require(mapPath)
+    if (isWebpack2) {
+      config.plugins.push(new webpack.LoaderOptionsPlugin({
+        vuxMaps: maps
+      }))
+    } else {
+      config = merge(config, {
+        vuxMaps: maps
+      })
+    }
+  }
 
   /**
    * ======== read vux locales and set globally ========
@@ -234,6 +251,15 @@ module.exports.merge = function (oldConfig, vuxConfig) {
       })
     }
   }
+
+  /**
+   * ======== append js-loader ========
+   */
+  config.module[loaderKey].forEach(function (rule) {
+    if (rule.loader === 'babel' || rule.loader === 'babel-loader') {
+      rule.loader = 'babel-loader!' + jsLoader
+    }
+  })
 
   /**
    * ======== set compiling vux js source ========

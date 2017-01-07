@@ -18,68 +18,24 @@ module.exports = function (source) {
         }
       }
     })
-    let matchVuxUi = config.plugins.filter(function (one) {
-      return one.name === 'vux-ui'
-    })
-    if (matchVuxUi.length) {
-      source = importParser(source, config)
-    }
+  }
+
+  const maps = utils.getLoaderConfig(this, "vuxMaps")
+
+  if (config.options.useVuxUI && /}\s+from(.*?)'vux/.test(source)) {
+    const parser = require('./libs/import-parser')
+    source = parser(source, function (opts) {
+      let str = ''
+      opts.components.forEach(function (component) {
+        str += `import ${component.newName} from 'vux/${maps[component.originalName]}'\n`
+      })
+      return str
+    }, 'vux')
   }
 
   return source
 }
 
-// @todo 解析 as 
-function importParser(source, config) {
-  if (!/import \{/.test(source) && !/vux/) {
-    return source
-  }
-
-  source = source.replace(/import.*{(.*)}.*from 'vux'/g, function (match) {
-    if (!match) return match
-    const components = match.split('{')[1].split('}')[0].split(',').map(function (one) {
-      return one.replace(/\s+/g, '')
-    })
-    let str = ''
-    str = components.map(function (item) {
-      let importName = item
-      if (/as/.test(item)) {
-        let _items = item.split('as')
-        if (source.indexOf(`${_items[0]} as`) > -1 || source.indexOf(`${_items[0]}  as`) > -1) {
-          item = _items[0]
-          importName = _items[1]
-        }
-      }
-      if(/Data$/.test(item)) {
-        let fileName = camelCaseToDash(item.replace(/Data$/,''))
-        return `import ${item} from 'vux/src/datas/${fileName}.json'`
-      } else if (/Item/.test(item)) {
-        return ''
-      } else {
-        const name = item.replace(/([A-Z])/g, function ($1) {
-          return "-" + $1.toLowerCase();
-        }).slice(1)
-        if (components.indexOf(item + 'Item') > 0) { // 子组件一起引入
-          return `import { ${item}, ${item}Item } from 'vux/src/components/${name}'`
-        } else if (item === 'Swiper' && components.indexOf('SwiperItem') === -1) { // 单个引入 Swiper
-          return `import Swiper from 'vux/src/components/swiper/swiper.vue'`
-        } else if (item === 'SwiperItem' && components.indexOf('Swiper') === -1) { // 单个引入 SwiperItem
-          return `import SwiperItem from 'vux/src/components/swiper/swiper-item.vue'`
-        } else {
-          let modules = `${item}`
-          if (importName !== item) {
-            modules = `${importName}`
-          }
-          return `import ${modules} from 'vux/src/components/${name}'`
-        }
-      }
-    }).join('\n')
-    return str
-  })
-
-  return source
-}
-
-function camelCaseToDash (str) {
-  return str.replace( /([a-z])([A-Z])/g, '$1_$2' ).toLowerCase()
+function camelCaseToDash(str) {
+  return str.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase()
 }
