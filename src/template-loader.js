@@ -1,5 +1,6 @@
 'use strict'
-
+const _ = require('lodash')
+const touch = require('touch')
 const utils = require('loader-utils')
 const yamlReader = require('js-yaml')
 const fs = require('fs')
@@ -26,17 +27,27 @@ module.exports = function (source) {
    */
   let dynamic = false
   let locale = 'zh-CN'
-    // 如果不设置, dynamic 为false, local 为 zh-CN
+  let vuxFunctionName = '$t'
+  let functionName = '__'
+  let staticTranslations = null
+  let langs = ['en', 'zh-CN']
+  let staticReplace
+
+  // 如果不设置, dynamic 为false, local 为 zh-CN
   const i18nPluginsMatch = config.plugins.filter(function (one) {
-    return one.name === 'vux-i18n'
+    return one.name === 'i18n'
   })
+
   if (i18nPluginsMatch.length) {
-    dynamic = !!i18nPluginsMatch[0].dynamic
-    locale = i18nPluginsMatch[0].locale || 'zh-CN'
+    dynamic = !i18nPluginsMatch[0].vuxStaticReplace
+    locale = i18nPluginsMatch[0].vuxLocale || 'zh-CN'
+    vuxFunctionName = i18nPluginsMatch[0].vuxFunctionName || '$t'
+    functionName = i18nPluginsMatch[0].functionName || '__'
+    langs = i18nPluginsMatch[0].localeList || langs
+    staticTranslations = i18nPluginsMatch[0].staticTranslations || null
+    staticReplace = typeof i18nPluginsMatch[0].staticReplace === 'undefined' ? undefined : i18nPluginsMatch[0].staticReplace
   } else {
-    // 不指定i18n,则默认为dynamic为false
-    dynamic = false
-    locale = 'zh-CN'
+
   }
 
   if ((isVuxVueFile) && source.indexOf("$t(") > -1) {
@@ -45,7 +56,7 @@ module.exports = function (source) {
       source = source.replace(matchI18nReg, function (a, b) {
         let key = `vux.${name}.${b}`
         if (a.indexOf("'") > -1) { // 用于翻译字符
-          return "'" + locales[key][locale] + "'"
+          return "'" + locales[locale][key] + "'"
         } else { // 用于翻译变量，如 $t(text)
           return b
         }
@@ -54,12 +65,20 @@ module.exports = function (source) {
       // dynamic 为 true, 则对于 vux 源码，把 key 加上 prefix
       source = source.replace(matchI18nReg, function (a, b) {
         if (a.indexOf("'") > -1) {
-          return a.replace(b, `vux.${name}.${b}`)
+          return a.replace(b, `vux.${name}.${b}`).replace('$t', vuxFunctionName)
         } else {
-          return a
+          return a.replace('$t', vuxFunctionName)
         }
       })
     }
+  } else if (!isVuxVueFile && source.indexOf(`${functionName}(`) > -1 && staticTranslations && staticReplace === true) {
+    // 对于项目文件进行静态替换
+    let matchI18nReg = new RegExp(`\$${functionName}\('?(.*?)'?\)`, 'g')
+    source = source.replace(matchI18nReg, function (a, b) {
+      if (a.indexOf("'") > -1) {
+        return `${i18nPluginsMatch[0].staticTranslations[b] || b}`
+      }
+    })
   }
 
   config.plugins.forEach(function (plugin) {
@@ -84,14 +103,23 @@ module.exports = function (source) {
     }
 
     // 非 vux 组件才需要生成语言
-    if (!isVuxVueFile && plugin.name === 'vux-i18n') {
-      const globalConfigPath = 'src/locales/global_locales.yml'
-      const componentsConfigPath = 'src/locales/components_locales.yml'
-      const isDynamic = !!plugin.dynamic
+    if (!isVuxVueFile && plugin.name === 'i18n') {
+
+      const savePath = path.resolve(config.options.projectRoot, plugin.extractToFiles)
+
+      let format = 'yml'
+      if (/\.json$/.test(plugin.extractToFiles)) {
+        format = 'json'
+      }
+
+      let fileMode = 'all'
+      if (plugin.extractToFiles.indexOf('{lang}') !== -1) {
+        fileMode = 'single'
+      }
+
+      const isDynamic = plugin.staticReplace === false
 
       if (isDynamic) {
-        // 异步写到语言文件里，不然很难实现 live reload
-        // 根据identifier,直接覆盖相关内容
         setTimeout(function () {
           const rawFileContent = fs.readFileSync(_this.resourcePath, 'utf-8')
           const results = rawFileContent.match(/<i18n[^>]*>([\s\S]*?)<\/i18n>/)
@@ -109,21 +137,77 @@ module.exports = function (source) {
                 attrsMap[tmp[0]] = tmp[1]
               })
 
-            const filePath = path.resolve(config.options.projectRoot, componentsConfigPath)
             try {
               const local = yamlReader.safeLoad(results[1])
-                // 读取已经存在的语言文件
+              const rs = parseI18n(local, langs)
               let finalConfig = {}
-              let currentConfig = fs.readFileSync(filePath, 'utf-8')
-              if (!currentConfig) {
-                finalConfig = local
-              } else {
-                finalConfig = Object.assign(yamlReader.safeLoad(currentConfig), local)
+
+              // all and yml format
+              if (fileMode === 'all' && format === 'yml') {
+                touch.sync(savePath)
+                let currentConfig = fs.readFileSync(savePath, 'utf-8')
+                if (!currentConfig) {
+                  finalConfig = rs.translations
+                } else {
+                  finalConfig = mergeLang(yamlReader.safeLoad(currentConfig), rs.translations)
+                }
+                if (!currentConfig || (currentConfig && JSON.stringify(yamlReader.safeLoad(currentConfig)) !== JSON.stringify(finalConfig))) {
+                  fs.writeFileSync(savePath, yamlReader.safeDump(finalConfig))
+                }
               }
-              if (!currentConfig || (currentConfig && JSON.stringify(yamlReader.safeLoad(currentConfig)) !== JSON.stringify(finalConfig))) {
-                fs.writeFileSync(filePath, yamlReader.safeDump(finalConfig))
+
+              if (fileMode === 'all' && format === 'json') {
+                touch.sync(savePath)
+                let currentConfig = fs.readFileSync(savePath, 'utf-8')
+                if (!currentConfig) {
+                  finalConfig = rs.translations
+                } else {
+                  finalConfig = mergeLang(JSON.parse(currentConfig), rs.translations)
+                }
+                if (!currentConfig || (currentConfig && JSON.stringify(currentConfig) !== JSON.stringify(finalConfig))) {
+                  fs.writeFileSync(savePath, JSON.stringify(finalConfig, null, 2))
+                }
               }
+
+              // single and yml
+
+              if (fileMode === 'single' && format === 'yml') {
+                for (let i = 0; i < langs.length; i++) {
+                  let lang = langs[i]
+                  let savePath = path.resolve(config.options.projectRoot, plugin.extractToFiles).replace('{lang}', lang)
+                  touch.sync(savePath)
+                  let currentConfig = fs.readFileSync(savePath, 'utf-8')
+                  if (!currentConfig) {
+                    finalConfig = rs.translations[lang]
+                  } else {
+                    finalConfig = Object.assign(yamlReader.safeLoad(currentConfig), rs.translations[lang])
+                  }
+                  if (!currentConfig || (currentConfig && JSON.stringify(yamlReader.safeLoad(currentConfig)) !== JSON.stringify(finalConfig))) {
+                    fs.writeFileSync(savePath, yamlReader.safeDump(finalConfig))
+                  }
+                }
+              }
+
+              if (fileMode === 'single' && format === 'json') {
+
+                for (let i = 0; i < langs.length; i++) {
+                  let lang = langs[i]
+                  let savePath = path.resolve(config.options.projectRoot, plugin.extractToFiles).replace('{lang}', lang)
+                  touch.sync(savePath)
+                  let currentConfig = fs.readFileSync(savePath, 'utf-8')
+                  if (!currentConfig) {
+                    finalConfig = rs.translations[lang]
+                  } else {
+                    finalConfig = Object.assign(JSON.parse(currentConfig), rs.translations[lang])
+                  }
+                  if (!currentConfig || (currentConfig && JSON.stringify(currentConfig) !== JSON.stringify(finalConfig))) {
+                    fs.writeFileSync(savePath, JSON.stringify(finalConfig, null, 2))
+                  }
+                }
+              }
+
             } catch (e) {
+              console.log(e)
               console.log('yml 格式有误，请重新检查')
             }
 
@@ -143,27 +227,6 @@ module.exports = function (source) {
         })
       }
     }
-    // i18n
-    /**
-    if (plugin.name === 'i18n') {
-      const language = plugin.language
-      if (plugin.test.test(_this.resourcePath)) {
-        const basename = path.basename(_this.resourcePath)
-        const localeFile = _this.resourcePath.replace(basename, `locales/${language}.yml`)
-        try {
-          const locales = yamlReader.safeLoad(fs.readFileSync(localeFile, 'utf-8'))
-          for (let i in locales) {
-            source = source.replace(new RegExp(`__\\('${i}'\\)`, 'g'), `'${locales[i]}'`)
-          }
-          if (plugin.watch) {
-            _this.addDependency(localeFile)
-          }
-        } catch (e) {
-          console.log(`locales for ${basename} doesn't exist`)
-        }
-      }
-    }
-    **/
 
     if (plugin.name === 'template-string-append') {
       if (new RegExp(plugin.test).test(_this.resourcePath)) {
@@ -228,4 +291,43 @@ function parseOffFeature(content, features) {
     }
   })
   return content
+}
+
+function parseI18n(json, langs) {
+  langs = langs || []
+  if (!langs || !langs.length) {
+    for (let i in json) {
+      langs = langs.concat(Object.keys(json[i]))
+    }
+    langs = _.uniq(langs)
+  }
+  let rs = {}
+  for (let i = 0; i < langs.length; i++) {
+    let lang = langs[i]
+
+    if (!rs[lang]) {
+      rs[lang] = {}
+    }
+
+    for (let j in json) {
+      rs[lang][j] = json[j][lang] || j
+    }
+
+  }
+  return {
+    langs: langs,
+    translations: rs
+  }
+}
+
+function mergeLang(a, b) {
+  for (let i in b) {
+    for (let j in b[i]) {
+      if (!a[i]) {
+        a[i] = b[i]
+      }
+      a[i][j] = b[i][j]
+    }
+  }
+  return a
 }
