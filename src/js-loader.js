@@ -2,7 +2,7 @@ const utils = require('loader-utils')
 
 module.exports = function (source) {
   this.cacheable()
-
+  const _this = this
   const maps = utils.getLoaderConfig(this, "vuxMaps")
   const vuxConfig = utils.getLoaderConfig(this, "vux")
 
@@ -22,7 +22,11 @@ module.exports = function (source) {
       // js-parser
       if (plugin.name === 'js-parser') {
         if (plugin.fn) {
-          source = plugin.fn.call(plugin.fn, source)
+          if (plugin.test && plugin.test.test(_this.resourcePath)) {
+            source = plugin.fn.call(_this, source)
+          } else if (!plugin.test) {
+            source = plugin.fn.call(_this, source)
+          }
         }
       }
     })
