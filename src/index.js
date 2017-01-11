@@ -256,7 +256,7 @@ module.exports.merge = function (oldConfig, vuxConfig) {
    * ======== append js-loader ========
    */
   config.module[loaderKey].forEach(function (rule) {
-    if (rule.loader === 'babel' || rule.loader === 'babel-loader') {
+    if (rule.loader === 'babel' || rule.loader === 'babel-loader' || (/babel/.test(rule.loader) && !/!/.test(rule.loader))) {
       rule.loader = 'babel-loader!' + jsLoader
     }
   })
