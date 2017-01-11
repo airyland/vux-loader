@@ -58,7 +58,7 @@ module.exports = function (source) {
   var query = utils.parseQuery(this.query)
   this.cacheable()
   if (!source) return source
-  const config = utils.getLoaderConfig(this, "vux")
+  const config = this.vux || utils.getLoaderConfig(this, 'vux')
   if (!config) {
     return source
   }
@@ -166,9 +166,7 @@ module.exports.merge = function (oldConfig, vuxConfig) {
       config.plugins = []
     }
     config.plugins.push(new webpack.LoaderOptionsPlugin({
-      options: {
-        vux: vuxConfig
-      }
+      vux: vuxConfig
     }))
   } else { // for webpack@1.x, merge directly
 

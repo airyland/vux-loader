@@ -4,7 +4,7 @@ const utils = require('loader-utils')
 
 module.exports = function (source) {
   this.cacheable()
-  const config = utils.getLoaderConfig(this, "vux")
+  const config = this.vux || utils.getLoaderConfig(this, 'vux')
   if (!config.plugins || !config.plugins.length) {
     return source
   }
@@ -20,9 +20,8 @@ module.exports = function (source) {
     })
   }
 
-  const maps = utils.getLoaderConfig(this, "vuxMaps")
-
   if (config.options.useVuxUI && /}\s+from(.*?)'vux/.test(source)) {
+    const maps = this.vuxMaps || utils.getLoaderConfig(this, 'vuxMaps')
     const parser = require('./libs/import-parser')
     source = parser(source, function (opts) {
       let str = ''

@@ -15,13 +15,13 @@ module.exports = function (source) {
   const _this = this
   this.cacheable()
   const query = utils.parseQuery(this.query)
-  const config = utils.getLoaderConfig(this, 'vux')
+  const config = this.vux ||utils.getLoaderConfig(this, 'vux')
   if (!config.plugins || !config.plugins.length) {
     return source
   }
   const basename = path.basename(this.resourcePath)
   const isVuxVueFile = this.resourcePath.replace(/\\/g, '/').indexOf('/vux/src/components') > -1
-  const locales = utils.getLoaderConfig(this, 'vuxLocales')
+  const locales = this.vuxLocales || utils.getLoaderConfig(this, 'vuxLocales')
 
   /**
    * ======== i18n ========

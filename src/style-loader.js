@@ -5,7 +5,8 @@ const utils = require('loader-utils')
 module.exports = function (source) {
   this.cacheable()
 
-  const config = utils.getLoaderConfig(this, "vux")
+  const config = this.vux || utils.getLoaderConfig(this, 'vux')
+
   if (!config.plugins || !config.plugins.length) {
     return source
   }
