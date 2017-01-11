@@ -367,7 +367,7 @@ function getBabelLoader(projectRoot, name) {
 
   return {
     test: regex,
-    loader: 'babel',
+    loader: 'babel-loader',
     include: componentPath
   }
 }
