@@ -264,7 +264,7 @@ module.exports.merge = function (oldConfig, vuxConfig) {
   /**
    * ======== set compiling vux js source ========
    */
-  if (vuxConfig.options.vuxImportParser) {
+  if (hasPlugin('vux-ui', vuxConfig.plugins)) {
     config.module[loaderKey].push(getBabelLoader())
   }
 
