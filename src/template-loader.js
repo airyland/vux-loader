@@ -48,7 +48,9 @@ module.exports = function (source) {
     staticTranslations = i18nPluginsMatch[0].staticTranslations || null
     staticReplace = typeof i18nPluginsMatch[0].staticReplace === 'undefined' ? undefined : i18nPluginsMatch[0].staticReplace
   } else {
-
+    dynamic = false
+    locale = 'zh-CN'
+    vuxFunctionName = '$t'
   }
 
   if ((isVuxVueFile) && source.indexOf("$t(") > -1) {

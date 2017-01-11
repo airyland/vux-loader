@@ -178,18 +178,6 @@ module.exports.merge = function (oldConfig, vuxConfig) {
 
   }
 
-  /**
-   * ======== create locale file ========
-   */
-  if (hasPlugin('vux-i18n', vuxConfig.plugins)) {
-    const mkdirp = require('mkdirp')
-    const touch = require('touch')
-    const dir = path.resolve(vuxConfig.options.projectRoot, 'src/locales')
-    mkdirp.sync(dir)
-    touch.sync(path.resolve(dir, 'global_locales.yml'))
-    touch.sync(path.resolve(dir, 'components_locales.yml'))
-  }
-
   if (hasPlugin('vux-ui', vuxConfig.plugins)) {
     const mapPath = path.resolve(vuxConfig.options.projectRoot, 'node_modules/vux/src/components/map.json')
     const maps = require(mapPath)
@@ -214,11 +202,6 @@ module.exports.merge = function (oldConfig, vuxConfig) {
       const vuxLocalesContent = fs.readFileSync(vuxLocalesPath, 'utf-8')
       let vuxLocalesJson = yaml.safeLoad(vuxLocalesContent)
 
-      const globalConfigLocalesPath = path.resolve(vuxConfig.options.projectRoot, 'src/global_locales.yml')
-      const globalConfigLocalesContent = fs.readFileSync(globalConfigLocalesPath, 'utf-8')
-      const globalConfigLocalesJson = yaml.safeLoad(globalConfigLocalesContent)
-
-      vuxLocalesJson = Object.assign(vuxLocalesJson, globalConfigLocalesJson)
       if (isWebpack2) {
         config.plugins.push(new webpack.LoaderOptionsPlugin({
           vuxLocales: vuxLocalesJson
