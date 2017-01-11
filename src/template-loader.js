@@ -1,4 +1,5 @@
 'use strict'
+
 const _ = require('lodash')
 const touch = require('touch')
 const utils = require('loader-utils')

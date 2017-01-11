@@ -14,7 +14,7 @@ const styleLoader = path.join(__dirname, './style-loader.js')
 const templateLoader = path.join(__dirname, './template-loader.js')
 const jsLoader = path.join(__dirname, './js-loader.js')
 
-const projectRoot = path.resolve(__dirname, '../../../')
+const projectRoot = process.cwd()
 
 /**
  * Plugins

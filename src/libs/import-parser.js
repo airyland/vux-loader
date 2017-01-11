@@ -1,3 +1,5 @@
+'use strict'
+
 function parse(source, fn, moduleName) {
   if ((moduleName && source.indexOf(moduleName) === -1) || source.indexOf('import') === -1) {
     return source
