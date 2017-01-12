@@ -1,3 +1,5 @@
+'use strict'
+
 /**
 * https://www.npmjs.com/package/html-webpack-plugin
 * Async
