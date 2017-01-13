@@ -1,9 +1,11 @@
 'use strict'
 
 const utils = require('loader-utils')
+const fs = require('fs')
 
 module.exports = function (source) {
   this.cacheable()
+  const _this = this
   const config = this.vux || utils.getLoaderConfig(this, 'vux')
   if (!config.plugins || !config.plugins.length) {
     return source
@@ -26,10 +28,22 @@ module.exports = function (source) {
     source = parser(source, function (opts) {
       let str = ''
       opts.components.forEach(function (component) {
-        str += `import ${component.newName} from 'vux/${maps[component.originalName]}'\n`
+        let file = `vux/${maps[component.originalName]}`
+        if (config.options.vuxDev) {
+          if (/App\.vue/.test(_this.resourcePath)) {
+            file = file.replace(/vux\/src/g, '.')
+          } else {
+            file = file.replace(/vux\/src/g, '..')
+          }
+        }
+        str += `import ${component.newName} from '${file}'\n`
       })
       return str
     }, 'vux')
+  }
+
+  if (config.options.vuxWriteFile === true) {
+    fs.writeFileSync(this.resourcePath + '.vux.js', source)
   }
 
   return source

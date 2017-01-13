@@ -177,7 +177,10 @@ module.exports.merge = function (oldConfig, vuxConfig) {
   }
 
   if (hasPlugin('vux-ui', vuxConfig.plugins)) {
-    const mapPath = path.resolve(vuxConfig.options.projectRoot, 'node_modules/vux/src/components/map.json')
+    let mapPath = path.resolve(vuxConfig.options.projectRoot, 'node_modules/vux/src/components/map.json')
+    if (vuxConfig.options.vuxDev) {
+      mapPath = path.resolve(vuxConfig.options.projectRoot, 'src/components/map.json')
+    }
     const maps = require(mapPath)
     if (isWebpack2) {
       config.plugins.push(new webpack.LoaderOptionsPlugin({
@@ -194,8 +197,10 @@ module.exports.merge = function (oldConfig, vuxConfig) {
    * ======== read vux locales and set globally ========
    */
   if (hasPlugin('vux-ui', vuxConfig.plugins)) {
-    const vuxLocalesPath = path.resolve(vuxConfig.options.projectRoot, 'node_modules/vux/src/locales/all.yml')
-
+    let vuxLocalesPath = path.resolve(vuxConfig.options.projectRoot, 'node_modules/vux/src/locales/all.yml')
+    if (vuxConfig.options.vuxDir) {
+      vuxLocalesPath = path.resolve(vuxConfig.options.vuxDir, 'src/locales/all.yml')
+    }
     try {
       const vuxLocalesContent = fs.readFileSync(vuxLocalesPath, 'utf-8')
       let vuxLocalesJson = yaml.safeLoad(vuxLocalesContent)
@@ -246,7 +251,9 @@ module.exports.merge = function (oldConfig, vuxConfig) {
    * ======== set compiling vux js source ========
    */
   if (hasPlugin('vux-ui', vuxConfig.plugins)) {
-    config.module[loaderKey].push(getBabelLoader())
+    if (typeof vuxConfig.options.vuxSetBabel === 'undefined' || vuxConfig.options.vuxSetBabel === true) {
+      config.module[loaderKey].push(getBabelLoader())
+    }
   }
 
   // set done plugin

@@ -20,6 +20,14 @@ module.exports = function (source) {
     }
   })
 
+  if (config.options.vuxDev) {
+    if (/App\.vue$/.test(this.resourcePath)) {
+      source = source.replace('~vux/src', '.')
+    } else {
+      source = source.replace('~vux/src', '..')
+    }
+  }
+
   return importParser(source)
 }
 

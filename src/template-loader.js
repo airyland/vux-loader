@@ -20,7 +20,10 @@ module.exports = function (source) {
     return source
   }
   const basename = path.basename(this.resourcePath)
-  const isVuxVueFile = this.resourcePath.replace(/\\/g, '/').indexOf('/vux/src/components') > -1
+  let isVuxVueFile = this.resourcePath.replace(/\\/g, '/').indexOf('/vux/src/components') > -1
+  if (config.options.vuxDev && this.resourcePath.replace(/\\/g, '/').indexOf('src/components') > -1) {
+    isVuxVueFile = true
+  }
   const locales = this.vuxLocales || utils.getLoaderConfig(this, 'vuxLocales')
 
   /**
@@ -244,7 +247,10 @@ module.exports = function (source) {
       }
     }
   })
-
+  
+  if (config.options.vuxWriteFile === true) {
+    fs.writeFileSync(this.resourcePath + '.vux.html', source)
+  }
   return source
 }
 
