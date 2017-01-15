@@ -148,7 +148,7 @@ var vuxMapper = function (opts) {
 
 describe('vux-loader', function () {
 
-  describe.only('lib:import-parser', function () {
+  describe('lib:import-parser', function () {
 
     let tests = [{
       title: 'basic',
@@ -169,7 +169,7 @@ import { C, D } from 'vux'`
       string: `import {A,B} from "vux"`,
       rs: ['A', 'B']
     }, {
-      title: 'multi line and sinble quote',
+      title: 'multi line and single quote',
       string: `import { A,
 B } from 'vux'`,
       rs: ['A', 'B']
@@ -182,6 +182,16 @@ B } from "vux"`,
       title: 'no match',
       string: `import {A,B} from 'vvv'`,
       rs: `import {A,B} from 'vvv'`
+    }, , {
+      title: 'more codes',
+      string: `import C from 'XY'
+import { D } from 'ZW'
+import {A,B} from 'vvv'
+import { C }  from 'vux'`,
+      rs: `import C from 'XY'
+import { D } from 'ZW'
+import {A,B} from 'vvv'
+import { C } from 'vux'`
     }]
 
     tests.forEach(function (one) {

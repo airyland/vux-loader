@@ -9,7 +9,14 @@ function parse(source, fn, moduleName) {
 
   let replaceList = []
   removeComments(source).replace(reg, function (match1, match2, match3) {
+
+    // dirty way for the moment
+    if(match1.indexOf('import') !== match1.lastIndexOf('import')) {
+      match1 = match1.slice(match1.lastIndexOf('import'), match1.length)
+    }
+
     const components = getNames(match1)
+
     if (fn) {
       const replaceString = fn({
         components: components,
@@ -19,8 +26,6 @@ function parse(source, fn, moduleName) {
         source: source
       })
       replaceList.push([match1, replaceString])
-    } else {
-      return match1
     }
   })
   replaceList.forEach(function (one) {
