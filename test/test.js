@@ -54,14 +54,14 @@ function bundle(options, vuxOptions, cb) {
 
   if (vuxOptions.options) {
     for (let i in vuxOptions.options) {
-      basicVux.options[i]  =  vuxOptions.options[i]
+      basicVux.options[i] = vuxOptions.options[i]
     }
   }
 
   if (vuxOptions.plugins) {
     basicVux.plugins = vuxOptions.plugins
   }
-  
+
   config = vuxLoader.merge(config, basicVux)
 
   var webpackCompiler = webpack(config)
@@ -125,7 +125,84 @@ function interopDefault(module) {
   return module ? module.__esModule ? module.default : module : module
 }
 
+var parse = require('../src/libs/import-parser')
+
+var commomMapper = function (opts) {
+  components = opts.components.map(function (one) {
+    return one.newName
+  })
+  return `import { ${components.join(', ')} } from 'vux'`
+}
+
+var vuxMapper = function (opts) {
+  let str = ''
+  opts.components.forEach(function (one) {
+    if (one.originalName === 'AlertPlugin') {
+      str += `import ${one.newName} from 'vux/src/plugins/Alert'\n`
+    } else if (one.originalName === 'ToastPlugin') {
+      str += `import ${one.newName} from 'vux/src/plugins/Toast'\n`
+    }
+  })
+  return str
+}
+
 describe('vux-loader', function () {
+
+  describe.only('lib:import-parser', function () {
+
+    let tests = [{
+      title: 'basic',
+      string: `import {A,B} from 'vux'`,
+      rs: ['A', 'B']
+    }, {
+      title: 'do not parse comments',
+      string: `// import {A,B} from 'vux'
+import { C, D} from 'vux'`,
+      rs: `// import {A,B} from 'vux'
+import { C, D } from 'vux'`
+    }, {
+      title: 'use as',
+      string: `import {A,B as C} from 'vux'`,
+      rs: ['A', 'C']
+    }, {
+      title: 'double quote',
+      string: `import {A,B} from "vux"`,
+      rs: ['A', 'B']
+    }, {
+      title: 'multi line and sinble quote',
+      string: `import { A,
+B } from 'vux'`,
+      rs: ['A', 'B']
+    }, {
+      title: 'multi line and double quote',
+      string: `import { A,
+B } from "vux"`,
+      rs: ['A', 'B']
+    }, {
+      title: 'no match',
+      string: `import {A,B} from 'vvv'`,
+      rs: `import {A,B} from 'vvv'`
+    }]
+
+    tests.forEach(function (one) {
+      it(one.title, function () {
+        const rs = parse(one.string, commomMapper)
+        if (typeof one.rs === 'string') {
+          expect(rs).to.equal(one.rs)
+        } else {
+          expect(rs).to.equal(`import { ${one.rs.join(', ')} } from 'vux'`)
+        }
+      })
+    })
+
+    it('vux test', function () {
+      const rs = parse(`import {AlertPlugin, ToastPlugin} from 'vux'`, vuxMapper)
+      expect(rs).to.equal(`import AlertPlugin from 'vux/src/plugins/Alert'
+import ToastPlugin from 'vux/src/plugins/Toast'
+`)
+    })
+
+  })
 
   describe('plugin:less-theme', function () {
 

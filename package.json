@@ -59,7 +59,6 @@
     "stylus": "^0.54.5",
     "stylus-loader": "^2.4.0",
     "sugarss": "^0.2.0",
-    "touch": "^1.0.0",
     "vue": "^2.1.7",
     "vue-html-loader": "^1.2.3",
     "vue-loader": "^9.9.5",

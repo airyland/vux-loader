@@ -1,71 +1,151 @@
 'use strict'
 
 function parse(source, fn, moduleName) {
+  moduleName = moduleName || 'vux'
   if ((moduleName && source.indexOf(moduleName) === -1) || source.indexOf('import') === -1) {
     return source
   }
-  let moduleString = moduleName || '.*'
-  const reg = new RegExp(`import.*{(.*)}.*from '(${moduleString})'`, 'g')
+  const reg = getReg(moduleName)
 
-  source = source.replace(reg, function (match1, match2, match3) {
-    // console.log('match is', match, match2, match3)
-    const components = match1.split('{')[1].split('}')[0].split(',').map(function (one) {
-        return one.replace(/^\s+|\s+$/g, '')
-      }).map(function (one) {
-        if (!/\s+/.test(one)) {
-          return {
-            originalName: one,
-            newName: one,
-            moduleName: match3
-          }
-        } else {
-          let _list = one.split('as').map(function (one) {
-            return one.replace(/^\s+|\s+$/g, '')
-          })
-          return {
-            originalName: _list[0],
-            newName: _list[1],
-            moduleName: match3
-          }
-        }
-      })
-      // console.log('final components', components)
+  let replaceList = []
+  removeComments(source).replace(reg, function (match1, match2, match3) {
+    const components = getNames(match1)
     if (fn) {
-      return fn({
+      const replaceString = fn({
         components: components,
         match1: match1,
         match2: match2,
         match3: match3,
         source: source
       })
+      replaceList.push([match1, replaceString])
     } else {
       return match1
     }
   })
+  replaceList.forEach(function (one) {
+    source = source.replace(one[0], one[1])
+  })
   return source
 }
-/**
-parse(`import {a,b} from 'vux'`)
-parse(`import { a,b} from 'vux'`)
-parse(`import {  a,b} from 'vux'`)
-parse(`import {  a, b} from 'vux'`)
-parse(`import {  a, b } from 'vux'`)
-parse(`import {  a, b as c } from 'vux'`)
-parse(`import {  a, b as  c } from 'vux'`)
-parse(`import {  a,  b  as  c } from 'vux'`)
-parse(`import {a,b} from 'vux1' 
-  import {  a as AA,  b  as  BB } from 'vux2'`)
 
-parse(`import {AlertPlugin, ToastPlugin} from 'vux'`, function (opts) {
-  let str = ''
-  opts.components.forEach(function (one) {
-    if (one.originalName === 'AlertPlugin') {
-      str += `import ${one.newName} from 'vux/src/plugins/Alert'\n`
-    } else if (one.originalName === 'ToastPlugin') {
-      str += `import ${one.newName} from 'vux/src/plugins/Toast'\n`
-    }
-  })
-  return str
-})
-**/
 module.exports = parse
+
+function getReg(moduleName) {
+  return new RegExp(`import([\\s\\S]*?)from\\s+['"]?(${moduleName})['"]?\\s*;*\\s*`, 'g')
+}
+
+function getNames(one) {
+  const startIndex = one.indexOf('{')
+  const endIndex = one.indexOf('}')
+  const content = one.slice(startIndex + 1, endIndex)
+  const list = content.split(',').map(one => {
+    return one.replace(/^\s+|\s+$/g, '')
+      .replace(/\n/g, '')
+  }).map(one => {
+
+    if (!/\s+/.test(one)) {
+      return {
+        originalName: one,
+        newName: one
+      }
+    } else if (/\s+as/.test(one)) {
+      let _list = one.split('as').map(function (one) {
+        return one.replace(/^\s+|\s+$/g, '')
+      })
+      return {
+        originalName: _list[0],
+        newName: _list[1]
+      }
+    }
+
+    return one
+  })
+  return list
+}
+
+// http://james.padolsey.com/javascript/removing-comments-in-javascript/
+function removeComments(str) {
+  str = ('__' + str + '__').split('');
+  var mode = {
+    singleQuote: false,
+    doubleQuote: false,
+    regex: false,
+    blockComment: false,
+    lineComment: false,
+    condComp: false
+  };
+  for (var i = 0, l = str.length; i < l; i++) {
+
+    if (mode.regex) {
+      if (str[i] === '/' && str[i - 1] !== '\'') {
+        mode.regex = false;
+      }
+      continue;
+    }
+
+    if (mode.singleQuote) {
+      if (str[i] === "'" && str[i - 1] !== '\'') {
+        mode.singleQuote = false;
+      }
+      continue;
+    }
+
+    if (mode.doubleQuote) {
+      if (str[i] === '"' && str[i - 1] !== '\'') {
+        mode.doubleQuote = false;
+      }
+      continue;
+    }
+
+    if (mode.blockComment) {
+      if (str[i] === '*' && str[i + 1] === '/') {
+        str[i + 1] = '';
+        mode.blockComment = false;
+      }
+      str[i] = '';
+      continue;
+    }
+
+    if (mode.lineComment) {
+      if (str[i + 1] === 'n' || str[i + 1] === 'r') {
+        mode.lineComment = false;
+      }
+      str[i] = '';
+      continue;
+    }
+
+    if (mode.condComp) {
+      if (str[i - 2] === '@' && str[i - 1] === '*' && str[i] === '/') {
+        mode.condComp = false;
+      }
+      continue;
+    }
+
+    mode.doubleQuote = str[i] === '"';
+    mode.singleQuote = str[i] === "'";
+
+    if (str[i] === '/') {
+
+      if (str[i + 1] === '*' && str[i + 2] === '@') {
+        mode.condComp = true;
+        continue;
+      }
+      if (str[i + 1] === '*') {
+        str[i] = '';
+        mode.blockComment = true;
+        continue;
+      }
+      if (str[i + 1] === '/') {
+        str[i] = '';
+        mode.lineComment = true;
+        continue;
+      }
+      mode.regex = true;
+
+    }
+
+  }
+  const rs = str.join('').slice(2, -2);
+  return rs
+}
