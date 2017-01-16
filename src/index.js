@@ -228,7 +228,17 @@ module.exports.merge = function (oldConfig, vuxConfig) {
     let hasAppendVuxLoader = false
     config.module[loaderKey].forEach(function (rule) {
       if (rule.loader === 'vue' || rule.loader === 'vue-loader') {
-        rule.loader = loaderString
+        if (!isWebpack2 || (isWebpack2 && !rule.options)) {
+          rule.loader = loaderString
+        } else if (isWebpack2 && rule.options) {
+          delete rule.loader
+          rule.use = [
+         'vux-loader',
+            {
+              loader: 'vue-loader',
+              options: rule.options
+         }]
+        }
         hasAppendVuxLoader = true
       }
     })
