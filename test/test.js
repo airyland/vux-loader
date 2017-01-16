@@ -149,7 +149,7 @@ var vuxMapper = function (opts) {
 
 describe('vux-loader', function () {
 
-  describe.only('lib:get theme variables', function () {
+  describe('lib:get theme variables', function () {
     it('basic', function () {
       const rs = themeParse(path.resolve(__dirname, './vux-fixtures/less-theme-001.less'))
       expect(rs.a).to.equal('b')
@@ -206,7 +206,20 @@ import { C }  from 'vux'`,
 import { D } from 'ZW'
 import {A,B} from 'vvv'
 import { C } from 'vux'`
-    }]
+    }, {
+      title: 'vux test2',
+      string: `import {Group,Cell} from 'vux'
+import value2name from 'vux/src/filters/value2name'`,
+      rs: `import { Group, Cell } from 'vux'
+import value2name from 'vux/src/filters/value2name'`
+},{
+  title: 'vux test3',
+  string: `import {Group,
+Cell} from 'vux'
+import value2name from 'vux/src/filters/value2name'`,
+  rs: `import { Group, Cell } from 'vux'
+import value2name from 'vux/src/filters/value2name'`
+}]
 
     tests.forEach(function (one) {
       it(one.title, function () {

@@ -37,7 +37,7 @@ function parse(source, fn, moduleName) {
 module.exports = parse
 
 function getReg(moduleName) {
-  return new RegExp(`import\\s+\{.*([\\s\\S]*?)from\\s+['"]?${moduleName}['"]?\\s*;*\\s*`, 'g')
+  return new RegExp(`import\\s.*(\\n(?!import).*)*from(\\s)+['|"]${moduleName}['|"]`, 'g')
 }
 
 function getNames(one) {
