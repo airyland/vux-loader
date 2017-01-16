@@ -238,6 +238,7 @@ module.exports.merge = function (oldConfig, vuxConfig) {
               loader: 'vue-loader',
               options: rule.options
          }]
+         delete rule.options
         }
         hasAppendVuxLoader = true
       }
