@@ -219,6 +219,18 @@ Cell} from 'vux'
 import value2name from 'vux/src/filters/value2name'`,
   rs: `import { Group, Cell } from 'vux'
 import value2name from 'vux/src/filters/value2name'`
+},{
+  title: 'vux test4',
+  string: `import { M1, M2 } from 'vux'
+import { mapMutations, mapState } from 'vuex'
+import { Group, Cell } from 'vux'
+import { Group1, Cell1 } from 'vux'
+import value2name from 'vux/src/filters/value2name'`,
+  rs: `import { M1, M2 } from 'vux'
+import { mapMutations, mapState } from 'vuex'
+import { Group, Cell } from 'vux'
+import { Group1, Cell1 } from 'vux'
+import value2name from 'vux/src/filters/value2name'`
 }]
 
     tests.forEach(function (one) {
