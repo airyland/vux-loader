@@ -16,6 +16,8 @@ const jsLoader = path.join(__dirname, './js-loader.js')
 
 const projectRoot = process.cwd()
 
+const getLessVariables = require('./libs/get-less-variables')
+
 /**
  * Plugins
  */
@@ -377,24 +379,6 @@ function getBabelLoader(projectRoot, name) {
     loader: 'babel-loader',
     include: componentPath
   }
-}
-
-/**
- * @todo cache theme content?
- * @todo support array of themes
- */
-function getLessVariables(theme) {
-  var themeContent = fs.readFileSync(theme, 'utf-8')
-  var variables = {}
-  themeContent.split('\n').forEach(function (item) {
-    var _pair = item.split(':')
-    if (_pair.length < 2) return;
-    var key = _pair[0].replace('\r', '').replace('@', '')
-    if (!key) return;
-    var value = _pair[1].replace(';', '').replace('\r', '').replace(/^\s+|\s+$/g, '')
-    variables[key] = value
-  })
-  return variables
 }
 
 function setWebpackConfig(oriConfig, appendConfig, isWebpack2) {

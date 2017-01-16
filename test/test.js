@@ -126,6 +126,7 @@ function interopDefault(module) {
 }
 
 var parse = require('../src/libs/import-parser')
+var themeParse = require('../src/libs/get-less-variables')
 
 var commomMapper = function (opts) {
   components = opts.components.map(function (one) {
@@ -147,6 +148,19 @@ var vuxMapper = function (opts) {
 }
 
 describe('vux-loader', function () {
+
+  describe.only('lib:get theme variables', function () {
+    it('basic', function () {
+      const rs = themeParse(path.resolve(__dirname, './vux-fixtures/less-theme-001.less'))
+      expect(rs.a).to.equal('b')
+    })
+
+    it('ignore comments', function () {
+      const rs = themeParse(path.resolve(__dirname, './vux-fixtures/less-theme-002.less'))
+      expect(rs.a).to.equal('b')
+      expect(rs.c).to.equal('d')
+    })
+  })
 
   describe('lib:import-parser', function () {
 
