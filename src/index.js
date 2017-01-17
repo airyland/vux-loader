@@ -200,8 +200,8 @@ module.exports.merge = function (oldConfig, vuxConfig) {
    */
   if (hasPlugin('vux-ui', vuxConfig.plugins)) {
     let vuxLocalesPath = path.resolve(vuxConfig.options.projectRoot, 'node_modules/vux/src/locales/all.yml')
-    if (vuxConfig.options.vuxDir) {
-      vuxLocalesPath = path.resolve(vuxConfig.options.vuxDir, 'src/locales/all.yml')
+    if (vuxConfig.options.vuxDev) {
+      vuxLocalesPath = path.resolve(vuxConfig.options.projectRoot, 'src/locales/all.yml')
     }
     try {
       const vuxLocalesContent = fs.readFileSync(vuxLocalesPath, 'utf-8')
