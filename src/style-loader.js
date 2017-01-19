@@ -22,15 +22,11 @@ module.exports = function (source) {
 
   if (config.options.vuxDev) {
     if (/App\.vue$/.test(this.resourcePath)) {
-      source = source.replace('~vux/src', '.')
+      source = source.replace(/~vux\/src/g, '.')
     } else {
-      source = source.replace('~vux/src', '..')
+      source = source.replace(/~vux\/src/g, '..')
     }
   }
 
-  return importParser(source)
-}
-
-function importParser(source) {
   return source
 }
