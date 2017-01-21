@@ -13,7 +13,8 @@ function OptimizeCssAssetsPlugin(options) {
     cssProcessor: require('cssnano'),
     assetNameRegExp : /\.css$/g,
     cssProcessorOptions : {
-      zindex: false
+      zindex: false,
+      autoprefixer: false
     }
   }, options)
 };
@@ -76,7 +77,7 @@ OptimizeCssAssetsPlugin.prototype.apply = function(compiler) {
       }
     );
 
-    Promise.all(promises).then(function () { 
+    Promise.all(promises).then(function () {
       compileCallback()
       self.print('======== vux-loader: duplicate-style done!   ========\n')
      }, compileCallback)
