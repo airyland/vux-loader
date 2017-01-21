@@ -126,6 +126,16 @@ function interopDefault(module) {
 }
 
 var parse = require('../src/libs/import-parser')
+
+const str = parse(`<script>
+import {
+        Group
+    } from 'vux';
+
+`, function (opts) {
+      console.log(opts)
+    })
+
 var themeParse = require('../src/libs/get-less-variables')
 
 var commomMapper = function (opts) {
@@ -231,6 +241,18 @@ import { mapMutations, mapState } from 'vuex'
 import { Group, Cell } from 'vux'
 import { Group1, Cell1 } from 'vux'
 import value2name from 'vux/src/filters/value2name'`
+}, {
+  title: 'vux test5',
+  string: `import {
+XX,
+YY} from 'vux'`,
+  rs: `import { XX, YY } from 'vux'`
+}, {
+  title: 'vux test6',
+  string: `/**/
+import {Divider } from 'vux'`,
+  rs: `/**/
+import { Divider } from 'vux'`
 }]
 
     tests.forEach(function (one) {

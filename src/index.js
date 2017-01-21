@@ -312,7 +312,7 @@ function addScriptLoader(source, SCRIPT) {
       var loaders = content.split('!')
       loaders = loaders.map(function (item) {
         if (/type=script/.test(item)) {
-          item = item + '!' + SCRIPT
+          item = SCRIPT + '!' + item
         }
         return item
       }).join('!')
