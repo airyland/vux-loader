@@ -317,6 +317,8 @@ function addScriptLoader(source, SCRIPT) {
         return item
       }).join('!')
       content = loaders
+    } else if (/require\("!!babel-loader/.test(content)) {
+      content = content.replace('!!babel-loader!', `!!babel-loader!${SCRIPT}!`)
     }
     return content
   })
