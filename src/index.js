@@ -111,6 +111,19 @@ module.exports.merge = function (oldConfig, vuxConfig) {
     }
   }
 
+  if (!config.vue) {
+    config.vue = {
+      loaders: {
+        i18n: 'vux-loader/src/noop-loader.js'
+      }
+    }
+  } else {
+    if (!config.vue.loaders) {
+      config.vue.loaders = {}
+    }
+    config.vue.loaders.i18n = 'vux-loader/src/noop-loader.js'
+  }
+
   if (!vuxConfig.options) {
     vuxConfig.options = {}
   }
