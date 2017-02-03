@@ -111,19 +111,6 @@ module.exports.merge = function (oldConfig, vuxConfig) {
     }
   }
 
-  if (!config.vue) {
-    config.vue = {
-      loaders: {
-        i18n: 'vux-loader/src/noop-loader.js'
-      }
-    }
-  } else {
-    if (!config.vue.loaders) {
-      config.vue.loaders = {}
-    }
-    config.vue.loaders.i18n = 'vux-loader/src/noop-loader.js'
-  }
-
   if (!vuxConfig.options) {
     vuxConfig.options = {}
   }
@@ -165,6 +152,21 @@ module.exports.merge = function (oldConfig, vuxConfig) {
     const compareVersions = require('compare-versions')
     const pkg = require(path.resolve(projectRoot, 'package.json'))
     isWebpack2 = compareVersions(pkg.devDependencies.webpack.replace('^', '').replace('~', ''), '2.0.0') > -1
+  }
+
+  if (!isWebpack2) {
+    if (!config.vue) {
+      config.vue = {
+        loaders: {
+          i18n: 'vux-loader/src/noop-loader.js'
+        }
+      }
+    } else {
+      if (!config.vue.loaders) {
+        config.vue.loaders = {}
+      }
+      config.vue.loaders.i18n = 'vux-loader/src/noop-loader.js'
+    }
   }
 
   let loaderKey = isWebpack2 ? 'rules' : 'loaders'
