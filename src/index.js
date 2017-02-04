@@ -198,14 +198,6 @@ module.exports.merge = function (oldConfig, vuxConfig) {
     config.plugins.push(new InlineManifestWebpackPlugin({
         name: 'webpackManifest'
     }))
-    config.plugins.push(new htmlBuildCallbackPlugin({
-      events: {
-          'html-webpack-plugin-before-html-processing': function (data, cb) {
-            data.html = data.html.replace('</body>', '<%=htmlWebpackPlugin.files.webpackManifest%>\n</body>')
-            cb(null, data)
-          }
-      }
-    }))
   }
 
   if (hasPlugin('vux-ui', vuxConfig.plugins)) {
