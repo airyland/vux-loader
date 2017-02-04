@@ -193,6 +193,21 @@ module.exports.merge = function (oldConfig, vuxConfig) {
 
   }
 
+  if (hasPlugin('inline-manifest', vuxConfig.plugins)) {
+    var InlineManifestWebpackPlugin = require('inline-manifest-webpack-plugin')
+    config.plugins.push(new InlineManifestWebpackPlugin({
+        name: 'webpackManifest'
+    }))
+    config.plugins.push(new htmlBuildCallbackPlugin({
+      events: {
+          'html-webpack-plugin-before-html-processing': function (data, cb) {
+            data.html = data.html.replace('</body>', '<%=htmlWebpackPlugin.files.webpackManifest%>\n</body>')
+            cb(null, data)
+          }
+      }
+    }))
+  }
+
   if (hasPlugin('vux-ui', vuxConfig.plugins)) {
     let mapPath = path.resolve(vuxConfig.options.projectRoot, 'node_modules/vux/src/components/map.json')
     if (vuxConfig.options.vuxDev) {
