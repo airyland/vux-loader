@@ -16,7 +16,7 @@ module.exports = function (source) {
       // script-parser
       if (plugin.name === 'script-parser') {
         if (plugin.fn) {
-          source = plugin.fn.call(plugin.fn, source)
+          source = plugin.fn.call(_this, source)
         }
       }
     })

@@ -15,7 +15,7 @@ module.exports = function (source) {
     // style-parser
     if (plugin.name === 'style-parser') {
       if (plugin.fn) {
-        source = plugin.fn.call(plugin.fn, source)
+        source = plugin.fn.call(_this, source)
       }
     }
   })
