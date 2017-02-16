@@ -13,6 +13,8 @@ const scriptLoader = path.join(__dirname, './script-loader.js')
 const styleLoader = path.join(__dirname, './style-loader.js')
 const templateLoader = path.join(__dirname, './template-loader.js')
 const jsLoader = path.join(__dirname, './js-loader.js')
+const afterLessLoader = path.join(__dirname, './after-less-loader.js')
+
 
 const projectRoot = process.cwd()
 
@@ -55,6 +57,7 @@ EmitPlugin.prototype.apply = function (compiler) {
 module.exports = function (source) {
   const SCRIPT = utils.stringifyRequest(this, scriptLoader).replace(/"/g, '')
   const STYLE = utils.stringifyRequest(this, styleLoader).replace(/"/g, '')
+  const AFTER_LESS_STYLE = utils.stringifyRequest(this, afterLessLoader).replace(/"/g, '')
   const TEMPLATE = utils.stringifyRequest(this, templateLoader).replace(/"/g, '')
 
   var query = utils.parseQuery(this.query)
@@ -77,7 +80,7 @@ module.exports = function (source) {
   }
 
   source = addScriptLoader(source, SCRIPT)
-  source = addStyleLoader(source, STYLE, variables)
+  source = addStyleLoader(source, STYLE, variables, AFTER_LESS_STYLE)
   source = addTemplateLoader(source, TEMPLATE)
 
   return source
@@ -366,7 +369,7 @@ function addTemplateLoader(source, TEMPLATE) {
   return rs
 }
 
-function addStyleLoader(source, STYLE, variables) {
+function addStyleLoader(source, STYLE, variables, AFTER_LESS_STYLE) {
   let rs = source.replace(/require\("(.*)"\)/g, function (content) {
     if (/type=style/.test(content)) {
       var loaders = content.split('!')
@@ -382,7 +385,7 @@ function addStyleLoader(source, STYLE, variables) {
             params.sourceMap = true
           }
           params = JSON.stringify(params).replace(/"/g, "'")
-          item = item.split('?')[0] + '?' + params
+          item = AFTER_LESS_STYLE + '!' + item.split('?')[0] + '?' + params
         }
         return item
       }).join('!')

@@ -225,7 +225,7 @@ module.exports = function (source) {
     // template-parser
     if (plugin.name === 'template-parser') {
       if (plugin.fn) {
-        source = plugin.fn.call(plugin.fn, source)
+        source = plugin.fn.call(_this, source)
       }
       if (plugin.replaceList && plugin.replaceList.length) {
         plugin.replaceList.forEach(function (replacer) {
