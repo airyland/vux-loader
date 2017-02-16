@@ -4,7 +4,7 @@ const utils = require('loader-utils')
 
 module.exports = function (source) {
   this.cacheable()
-
+  const _this = this
   const config = this.vux || utils.getLoaderConfig(this, 'vux')
 
   if (!config.plugins || !config.plugins.length) {
@@ -15,7 +15,7 @@ module.exports = function (source) {
     // style-parser
     if (plugin.name === 'style-parser') {
       if (plugin.fn) {
-        source = plugin.fn.call(this, source)
+        source = plugin.fn.call(_this, source)
       }
     }
   })
