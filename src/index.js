@@ -125,17 +125,6 @@ module.exports.merge = function (oldConfig, vuxConfig) {
     })
   }
 
-  let canLog = true
-  if (vuxConfig.options.isTest) {
-    canLog = false
-  }
-
-  if (canLog) {
-    console.log('\n======================== vux-loader ========================')
-    console.log('Bug Reports: https://github.com/airyland/vux-loader/issues')
-    console.log('============================================================\n')
-  }
-
   if (!vuxConfig.options.projectRoot) {
     vuxConfig.options.projectRoot = projectRoot
   }
