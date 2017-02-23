@@ -366,15 +366,19 @@ function addStyleLoader(source, STYLE, variables, AFTER_LESS_STYLE) {
         if (/type=style/.test(item)) {
           item = STYLE + '!' + item
         }
-        if (/less-loader/.test(item) && variables) {
-          var params = {
-            modifyVars: variables
+        if (/less-loader/.test(item)) {
+          if (variables) {
+            var params = {
+              modifyVars: variables
+            }
+            if (/sourceMap/.test(item)) {
+              params.sourceMap = true
+            }
+            params = JSON.stringify(params).replace(/"/g, "'")
+            item = item.split('?')[0] + '?' + params
           }
-          if (/sourceMap/.test(item)) {
-            params.sourceMap = true
-          }
-          params = JSON.stringify(params).replace(/"/g, "'")
-          item = AFTER_LESS_STYLE + '!' + item.split('?')[0] + '?' + params
+          
+          item = AFTER_LESS_STYLE + '!' + item
         }
         return item
       }).join('!')
