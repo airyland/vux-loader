@@ -11,6 +11,8 @@ module.exports = function (source) {
     return source
   }
 
+  const isVuxComponent = this.resourcePath.replace(/\\/g, '/').indexOf('/vux/src/components') > -1
+
   if (config.plugins.length) {
     config.plugins.forEach(function (plugin) {
       // script-parser
@@ -33,7 +35,13 @@ module.exports = function (source) {
           if (/App\.vue/.test(_this.resourcePath)) {
             file = file.replace(/vux\/src/g, '.')
           } else {
-            file = file.replace(/vux\/src/g, '..')
+            let relative = '..'
+            // component file import other functions
+            if (isVuxComponent && !/components/.test(file)) {
+              relative = '../..'
+            }
+
+            file = file.replace(/vux\/src/g, relative)
           }
         }
         str += `import ${component.newName} from '${file}'\n`
