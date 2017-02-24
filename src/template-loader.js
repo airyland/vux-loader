@@ -24,6 +24,26 @@ module.exports = function (source) {
   if (config.options.vuxDev && this.resourcePath.replace(/\\/g, '/').indexOf('src/components') > -1) {
     isVuxVueFile = true
   }
+
+  // x-icon
+  if (config.options.vuxDev && source.indexOf('</x-icon>') > -1) {
+    source = source.replace(/<x-icon type="(.*?)"(.*?)><\/x-icon>/g, function (a, b) {
+      let size = 24
+      let sizeMatch = a.match(/size="(\d+)"/)
+      if (sizeMatch) {
+        size = sizeMatch[1]
+      }
+      let svgPath = path.resolve(config.options.projectRoot, `node_modules/vux/src/icons/${b}.svg`)
+      if (config.options.vuxDev) {
+        svgPath = path.resolve(config.options.projectRoot, `src/icons/${b}.svg`)
+      }
+      const content = fs.readFileSync(svgPath, 'utf-8')
+      return content.replace('width="512"', `width="${size}"`)
+      .replace('height="512"', `height="${size}"`)
+      .replace('<svg', `<svg class="vux-x-icon vux-x-icon-${b}"`)
+    })
+  }
+
   const locales = this.vuxLocales || utils.getLoaderConfig(this, 'vuxLocales')
 
   /**
