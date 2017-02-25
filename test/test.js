@@ -133,7 +133,7 @@ import {
     } from 'vux';
 
 `, function (opts) {
-      console.log(opts)
+      // console.log(opts)
     })
 
 var themeParse = require('../src/libs/get-less-variables')
@@ -355,6 +355,136 @@ import ToastPlugin from 'vux/src/plugins/Toast'
       })
     })
 
+  })
+
+  describe('one instance', function () {
+    it('should throw', function () {
+      const webpackConfig = {
+        plugins: []
+      }
+      const merge = function () {
+        return vuxLoader.merge(webpackConfig, {
+          options: {
+            env: 'env1'
+          },
+          plugins: [{
+            name: 'test1'
+          }, {
+            name: 'test1'
+          }]
+        })
+      }
+      expect(merge).to.throw(/only one instance is allowed/)
+    })
+  })
+
+  describe('merge multi times', function () {
+    it('should merge options', function () {
+      const webpackConfig = {
+        plugins: []
+      }
+      const config1 = vuxLoader.merge(webpackConfig, {
+        options: {
+          env: 'env1'
+        }
+      })
+
+      expect(config1.plugins[0].options.vux.options.env).to.equal('env1')
+
+      const config2 = vuxLoader.merge(config1, {
+        options: {
+          env: 'env2'
+        }
+      })
+
+      expect(config2.plugins[0].options.vux.options.env).to.equal('env2')
+    })
+
+    it('should merge plugins with the same name', function () {
+      const webpackConfig = {}
+      const config1 = vuxLoader.merge(webpackConfig, {
+        plugins: [{
+          name: 'test1',
+          arg: 1
+        }]
+      })
+
+      expect(config1.plugins[0].options.vux.plugins.length).to.equal(1)
+      expect(config1.plugins[0].options.vux.plugins[0].arg).to.equal(1)
+
+      const config2 = vuxLoader.merge(config1, {
+        plugins: [{
+          name: 'test1',
+          arg: 2
+        }]
+      })
+
+      expect(config1.plugins[0].options.vux.plugins.length).to.equal(1)
+      expect(config1.plugins[0].options.vux.plugins[0].arg).to.equal(2)
+
+    })
+
+    it('should delete plugin when env is change', function () {
+      const webpackConfig = {}
+      const config1 = vuxLoader.merge(webpackConfig, {
+        options: {
+          env: 'env1'
+        },
+        plugins: [{
+          name: 'test1',
+          arg: 1,
+          envs: ['env1']
+        }]
+      })
+
+      expect(config1.plugins[0].options.vux.plugins.length).to.equal(1)
+
+      const config2 = vuxLoader.merge(config1, {
+        options: {
+          env: 'env2'
+        }
+      })
+
+      expect(config1.plugins[0].options.vux.plugins.length).to.equal(0)
+
+    })
+
+    it('should merge plugins', function () {
+      const webpackConfig = {}
+      const config1 = vuxLoader.merge(webpackConfig, {
+        options: {
+          env: 'env1'
+        },
+        plugins: [{
+          name: 'test1',
+          arg: 1,
+          envs: ['env1']
+        }]
+      })
+
+      expect(config1.plugins[0].options.vux.allPlugins.length).to.equal(1)
+      expect(config1.plugins[0].options.vux.plugins.length).to.equal(1)
+
+      const config2 = vuxLoader.merge(config1, {
+        plugins: [{
+          name: 'test2'
+        }]
+      })
+
+      expect(config2.plugins[0].options.vux.allPlugins.length).to.equal(2)
+      expect(config2.plugins[0].options.vux.plugins.length).to.equal(2)
+
+       const config3 = vuxLoader.merge(config2, {
+        plugins: [{
+          name: 'test3',
+          envs: ['env3']
+        }]
+      })
+
+      expect(config3.plugins[0].options.vux.allPlugins.length).to.equal(3)
+      expect(config3.plugins[0].options.vux.plugins.length).to.equal(2)
+
+    })
   })
 
   describe('plugin:script-parser', function () {

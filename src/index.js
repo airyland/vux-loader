@@ -6,6 +6,7 @@ const merge = require('webpack-merge')
 const utils = require('loader-utils')
 const less = require('less')
 const yaml = require('js-yaml')
+const _ = require('lodash')
 
 var webpack = require('webpack')
 
@@ -102,6 +103,10 @@ function getFirstPlugin(name, list) {
 
 // merge vux options and return new webpack config
 module.exports.merge = function (oldConfig, vuxConfig) {
+  oldConfig = Object.assign({
+    plugins: []
+  }, oldConfig)
+
   let config = Object.assign({
     module: {},
     plugins: []
@@ -118,9 +123,56 @@ module.exports.merge = function (oldConfig, vuxConfig) {
     vuxConfig.options = {}
   }
 
+  if (!vuxConfig.plugins) {
+    vuxConfig.plugins = []
+  }
+
+  vuxConfig.allPlugins = vuxConfig.allPlugins || []
+
+  // check multi plugin instance
+  const pluginGroup = _.groupBy(vuxConfig.plugins, function (plugin) {
+    return plugin.name
+  })
+  for (let group in pluginGroup) {
+    if (pluginGroup[group].length > 1) {
+      throw(`only one instance is allowed. plugin name: ${group}`)
+    }
+  }
+
+  // if exists old vux config, merge options and plugins list
+  let oldVuxConfig = oldConfig.vux || null
+
+  oldConfig.plugins.forEach(function(plugin){
+    if (plugin.constructor.name === 'LoaderOptionsPlugin' && plugin.options.vux) {
+      oldVuxConfig = plugin.options.vux
+    }
+  })
+
+  if (oldVuxConfig) {
+    // merge old options
+    vuxConfig.options = Object.assign(oldVuxConfig.options, vuxConfig.options)
+    // merge old plugins list
+    vuxConfig.plugins.forEach(function (newPlugin) {
+      let isSame = false
+      oldVuxConfig.allPlugins.forEach(function (oldPlugin, index) {
+        if (newPlugin.name === oldPlugin.name) {
+          oldVuxConfig.allPlugins.splice(index, 1)
+          oldVuxConfig.allPlugins.push(newPlugin)
+          isSame = true
+        }
+      })
+      if (!isSame) {
+        oldVuxConfig.allPlugins.push(newPlugin)
+      }
+    })
+    vuxConfig.allPlugins = oldVuxConfig.allPlugins
+  } else {
+    vuxConfig.allPlugins = vuxConfig.plugins
+  }
+
   // filter plugins by env
-  if (vuxConfig.options.env && vuxConfig.plugins.length) {
-    vuxConfig.plugins = vuxConfig.plugins.filter(function (plugin) {
+  if (vuxConfig.options.env && vuxConfig.allPlugins.length) {
+    vuxConfig.plugins = vuxConfig.allPlugins.filter(function (plugin) {
       return typeof plugin.envs === 'undefined' || (typeof plugin.envs === 'object' && plugin.envs.length && plugin.envs.indexOf(vuxConfig.options.env) > -1)
     })
   }
@@ -163,6 +215,8 @@ module.exports.merge = function (oldConfig, vuxConfig) {
 
   let loaderKey = isWebpack2 ? 'rules' : 'loaders'
 
+  config.module[loaderKey] = config.module[loaderKey] || []
+
   const useVuxUI = hasPlugin('vux-ui', vuxConfig.plugins)
   vuxConfig.options.useVuxUI = true
 
@@ -174,6 +228,12 @@ module.exports.merge = function (oldConfig, vuxConfig) {
     if (!config.plugins) {
       config.plugins = []
     }
+    // delete old config for webpack2
+    config.plugins.forEach(function (plugin, index) {
+      if (plugin.constructor.name === 'LoaderOptionsPlugin' && plugin.options.vux) {
+        config.plugins.splice(index, 1)
+      }
+    })
     config.plugins.push(new webpack.LoaderOptionsPlugin({
       vux: vuxConfig
     }))

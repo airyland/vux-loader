@@ -15,7 +15,7 @@ module.exports = function (source) {
   const _this = this
   this.cacheable()
   const query = utils.parseQuery(this.query)
-  const config = this.vux ||utils.getLoaderConfig(this, 'vux')
+  const config = this.vux || utils.getLoaderConfig(this, 'vux')
   if (!config.plugins || !config.plugins.length) {
     return source
   }
