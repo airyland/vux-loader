@@ -302,17 +302,19 @@ module.exports.merge = function (oldConfig, vuxConfig) {
     let hasAppendVuxLoader = false
     config.module[loaderKey].forEach(function (rule) {
       if (rule.loader === 'vue' || rule.loader === 'vue-loader') {
-        if (!isWebpack2 || (isWebpack2 && !rule.options)) {
+        if (!isWebpack2 || (isWebpack2 && !rule.options && !rule.query)) {
           rule.loader = loaderString
-        } else if (isWebpack2 && rule.options) {
+        } else if (isWebpack2 && (rule.options || rule.query)) {
           delete rule.loader
           rule.use = [
          'vux-loader',
             {
               loader: 'vue-loader',
-              options: rule.options
+              options: rule.options,
+              query: rule.query
          }]
          delete rule.options
+         delete rule.query
         }
         hasAppendVuxLoader = true
       }
@@ -330,7 +332,13 @@ module.exports.merge = function (oldConfig, vuxConfig) {
    */
   config.module[loaderKey].forEach(function (rule) {
     if (rule.loader === 'babel' || rule.loader === 'babel-loader' || (/babel/.test(rule.loader) && !/!/.test(rule.loader))) {
-      rule.loader = 'babel-loader!' + jsLoader
+      if (isWebpack2 && rule.query) {
+        rule.use = [jsLoader, {loader: 'babel-loader', query: rule.query}]
+        delete rule.query
+        delete rule.loader
+      } else {
+        rule.loader = 'babel-loader!' + jsLoader
+      }
     }
   })
 
