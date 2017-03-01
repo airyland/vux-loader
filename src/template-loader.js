@@ -26,7 +26,7 @@ module.exports = function (source) {
   }
 
   // x-icon
-  if (config.options.vuxDev && source.indexOf('</x-icon>') > -1) {
+  if (config.options.useVuxUI && source.indexOf('</x-icon>') > -1) {
     source = source.replace(/<x-icon type="(.*?)"(.*?)><\/x-icon>/g, function (a, b) {
       let size = 24
       let sizeMatch = a.match(/size="(\d+)"/)
