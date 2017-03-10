@@ -1,6 +1,6 @@
 {
   "name": "vux-loader",
-  "version": "1.0.46",
+  "version": "1.0.47",
   "description": "extended loader for vue-loader",
   "main": "src/index.js",
   "keywords": [
@@ -34,8 +34,10 @@
     "js-yaml": "^3.6.1",
     "less": "^2.7.1",
     "loader-utils": "^0.2.15",
+    "node-cli-config": "^0.0.1",
     "touch": "^1.0.0",
     "underscore": "^1.8.3",
+    "uuid": "^3.0.1",
     "webpack-merge": "^1.1.2",
     "webpack-sources": "^0.1.2"
   },

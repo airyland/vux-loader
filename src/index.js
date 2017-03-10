@@ -16,6 +16,7 @@ const templateLoader = path.join(__dirname, './template-loader.js')
 const jsLoader = path.join(__dirname, './js-loader.js')
 const afterLessLoader = path.join(__dirname, './after-less-loader.js')
 
+require('./libs/report')
 
 const projectRoot = process.cwd()
 
@@ -135,14 +136,14 @@ module.exports.merge = function (oldConfig, vuxConfig) {
   })
   for (let group in pluginGroup) {
     if (pluginGroup[group].length > 1) {
-      throw(`only one instance is allowed. plugin name: ${group}`)
+      throw (`only one instance is allowed. plugin name: ${group}`)
     }
   }
 
   // if exists old vux config, merge options and plugins list
   let oldVuxConfig = oldConfig.vux || null
 
-  oldConfig.plugins.forEach(function(plugin){
+  oldConfig.plugins.forEach(function (plugin) {
     if (plugin.constructor.name === 'LoaderOptionsPlugin' && plugin.options.vux) {
       oldVuxConfig = plugin.options.vux
     }
@@ -151,7 +152,7 @@ module.exports.merge = function (oldConfig, vuxConfig) {
   if (oldVuxConfig) {
     // merge old options
     vuxConfig.options = Object.assign(oldVuxConfig.options, vuxConfig.options)
-    // merge old plugins list
+      // merge old plugins list
     vuxConfig.plugins.forEach(function (newPlugin) {
       let isSame = false
       oldVuxConfig.allPlugins.forEach(function (oldPlugin, index) {
@@ -248,7 +249,7 @@ module.exports.merge = function (oldConfig, vuxConfig) {
   if (hasPlugin('inline-manifest', vuxConfig.plugins)) {
     var InlineManifestWebpackPlugin = require('inline-manifest-webpack-plugin')
     config.plugins.push(new InlineManifestWebpackPlugin({
-        name: 'webpackManifest'
+      name: 'webpackManifest'
     }))
   }
 
@@ -313,8 +314,8 @@ module.exports.merge = function (oldConfig, vuxConfig) {
               options: rule.options,
               query: rule.query
          }]
-         delete rule.options
-         delete rule.query
+          delete rule.options
+          delete rule.query
         }
         hasAppendVuxLoader = true
       }
@@ -333,7 +334,10 @@ module.exports.merge = function (oldConfig, vuxConfig) {
   config.module[loaderKey].forEach(function (rule) {
     if (rule.loader === 'babel' || rule.loader === 'babel-loader' || (/babel/.test(rule.loader) && !/!/.test(rule.loader))) {
       if (isWebpack2 && rule.query) {
-        rule.use = [jsLoader, {loader: 'babel-loader', query: rule.query}]
+        rule.use = [jsLoader, {
+          loader: 'babel-loader',
+          query: rule.query
+        }]
         delete rule.query
         delete rule.loader
       } else {
@@ -445,7 +449,7 @@ function addStyleLoader(source, STYLE, variables, AFTER_LESS_STYLE) {
             params = JSON.stringify(params).replace(/"/g, "'")
             item = item.split('?')[0] + '?' + params
           }
-          
+
           item = AFTER_LESS_STYLE + '!' + item
         }
         return item
