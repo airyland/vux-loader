@@ -9,7 +9,7 @@ var webpackSources = require('webpack-sources')
 function OptimizeCssAssetsPlugin(options) {
   options = options || {}
   this.options = Object.assign({
-    canPrint: true,
+    canPrint: false,
     cssProcessor: require('cssnano'),
     assetNameRegExp : /\.css$/g,
     cssProcessorOptions : {

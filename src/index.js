@@ -367,7 +367,9 @@ module.exports.merge = function (oldConfig, vuxConfig) {
 
   // duplicate styles
   if (hasPlugin('duplicate-style', vuxConfig.plugins)) {
-    config.plugins.push(new DuplicateStyle())
+    let plugin = getFirstPlugin('duplicate-style', vuxConfig.plugins)
+    let options = plugin.options || {}
+    config.plugins.push(new DuplicateStyle(options))
   }
 
   if (hasPlugin('build-emit-callback', vuxConfig.plugins)) {
