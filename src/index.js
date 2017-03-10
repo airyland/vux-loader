@@ -16,7 +16,9 @@ const templateLoader = path.join(__dirname, './template-loader.js')
 const jsLoader = path.join(__dirname, './js-loader.js')
 const afterLessLoader = path.join(__dirname, './after-less-loader.js')
 
-require('./libs/report')
+if (process.env.NODE_ENV !== 'production') {
+  require('./libs/report')
+}
 
 const projectRoot = process.cwd()
 

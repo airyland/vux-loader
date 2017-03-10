@@ -840,6 +840,10 @@ dot-case@^2.1.0:
   dependencies:
     no-case "^2.2.0"
 
+draftlog@^1.0.10:
+  version "1.0.10"
+  resolved "http://registry.npm.taobao.org/draftlog/download/draftlog-1.0.10.tgz#4e7d03f31f3e1a3c58f0b07ed675877c3aa4af4a"
+
 ecc-jsbn@~0.1.1:
   version "0.1.1"
   resolved "http://registry.npm.taobao.org/ecc-jsbn/download/ecc-jsbn-0.1.1.tgz#0fc73a9ed5f0d53c38193398523ef7e543777505"
