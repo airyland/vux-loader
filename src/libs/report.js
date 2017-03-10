@@ -1,9 +1,10 @@
 // anonymous-tracking, do no harm to your computer and privacy
 try {
-  const version = '1.0.49'
+  const version = '1.0.50'
   const uuid = require('uuid')
   const now = new Date().getTime()
   const Config = require('node-cli-config')
+  const platform = process.platform
   const https = require('https')
   const config = Config({
     dir: '.vuxrc',
@@ -31,7 +32,7 @@ try {
     try {
       https.get({
         hostname: 'vux.li',
-        path: `/vux-loader-anonymous-tracking.html?version=${version}&uuid=${user}&start=${firstTime}&count=${count}`
+        path: `/vux-loader-anonymous-tracking.html?version=${version}&platform=${platform}&uuid=${user}&start=${firstTime}&count=${count}`
       })
     } catch (e) {}
   }
