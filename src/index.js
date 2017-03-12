@@ -16,7 +16,7 @@ const templateLoader = path.join(__dirname, './template-loader.js')
 const jsLoader = path.join(__dirname, './js-loader.js')
 const afterLessLoader = path.join(__dirname, './after-less-loader.js')
 
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== 'production' && !process.env.VUE_ENV) {
   require('./libs/report')
 }
 
