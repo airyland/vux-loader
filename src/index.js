@@ -78,7 +78,7 @@ module.exports = function (source) {
   })
 
   if (themes.length) {
-    const themePath = path.join(projectRoot, themes[0].path)
+    const themePath = path.join(config.options.projectRoot, themes[0].path)
     this.addDependency(themePath)
     variables = getLessVariables(themes[0].path)
   }
@@ -197,7 +197,7 @@ module.exports.merge = function (oldConfig, vuxConfig) {
 
   if (typeof isWebpack2 === 'undefined') {
     const compareVersions = require('compare-versions')
-    const pkg = require(path.resolve(projectRoot, 'package.json'))
+    const pkg = require(path.resolve(vuxConfig.options.projectRoot, 'package.json'))
     isWebpack2 = compareVersions(pkg.devDependencies.webpack.replace('^', '').replace('~', ''), '2.0.0') > -1
   }
 
@@ -353,7 +353,7 @@ module.exports.merge = function (oldConfig, vuxConfig) {
    */
   if (hasPlugin('vux-ui', vuxConfig.plugins)) {
     if (typeof vuxConfig.options.vuxSetBabel === 'undefined' || vuxConfig.options.vuxSetBabel === true) {
-      config.module[loaderKey].push(getBabelLoader())
+      config.module[loaderKey].push(getBabelLoader(vuxConfig.options.projectRoot))
     }
   }
 
