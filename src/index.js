@@ -130,6 +130,17 @@ module.exports.merge = function (oldConfig, vuxConfig) {
     vuxConfig.plugins = []
   }
 
+  if (vuxConfig.plugins.length) {
+    vuxConfig.plugins = vuxConfig.plugins.map(function (plugin) {
+      if (typeof plugin === 'string') {
+        return {
+          name: plugin
+        }
+      }
+      return plugin
+    })
+  }
+
   vuxConfig.allPlugins = vuxConfig.allPlugins || []
 
   // check multi plugin instance
@@ -253,6 +264,12 @@ module.exports.merge = function (oldConfig, vuxConfig) {
     config.plugins.push(new InlineManifestWebpackPlugin({
       name: 'webpackManifest'
     }))
+  }
+
+  if (hasPlugin('progress-bar', vuxConfig.plugins)) {
+    const ProgressBarPlugin = require('progress-bar-webpack-plugin')
+    const pluginConfig = getFirstPlugin('progress-bar', vuxConfig.plugins)
+    config.plugins.push(new ProgressBarPlugin(pluginConfig.options || {}))
   }
 
   if (hasPlugin('vux-ui', vuxConfig.plugins)) {
