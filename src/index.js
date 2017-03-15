@@ -10,13 +10,14 @@ const _ = require('lodash')
 
 var webpack = require('webpack')
 
+
 const scriptLoader = path.join(__dirname, './script-loader.js')
 const styleLoader = path.join(__dirname, './style-loader.js')
 const templateLoader = path.join(__dirname, './template-loader.js')
 const jsLoader = path.join(__dirname, './js-loader.js')
 const afterLessLoader = path.join(__dirname, './after-less-loader.js')
 
-if (process.env.NODE_ENV !== 'production' && !process.env.VUE_ENV) {
+if (process.env.NODE_ENV !== 'production' && !process.env.VUE_ENV && !/build\/build/.test(process.argv) && !/webpack\.prod/.test(process.argv)) {
   require('./libs/report')
 }
 
