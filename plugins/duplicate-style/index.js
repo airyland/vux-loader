@@ -9,7 +9,7 @@ var webpackSources = require('webpack-sources')
 function OptimizeCssAssetsPlugin(options) {
   options = options || {}
   this.options = Object.assign({
-    canPrint: false,
+    canPrint: undefined,
     cssProcessor: require('cssnano'),
     assetNameRegExp : /\.css$/g,
     cssProcessorOptions : {
@@ -20,7 +20,7 @@ function OptimizeCssAssetsPlugin(options) {
 };
 
 OptimizeCssAssetsPlugin.prototype.print = function() {
-  if (this.options.canPrint) {
+  if (this.options.canPrint || (typeof this.options.canPrint === 'undefined' && process.env.NODE_ENV === 'production')) {
     console.log.apply(console, arguments);
   }
 };

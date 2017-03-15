@@ -10,7 +10,6 @@ const _ = require('lodash')
 
 var webpack = require('webpack')
 
-
 const scriptLoader = path.join(__dirname, './script-loader.js')
 const styleLoader = path.join(__dirname, './style-loader.js')
 const templateLoader = path.join(__dirname, './template-loader.js')
