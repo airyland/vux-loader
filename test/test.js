@@ -159,6 +159,19 @@ var vuxMapper = function (opts) {
 
 describe('vux-loader', function () {
 
+  describe('parse virtual component', function () {
+    const parse = require('../src/libs/parse-virtual-component')
+    it('basic', function () {
+      const source = `
+  <x-icon a="b" c="d" class="e f" slot="icon"></x-icon>
+      `
+      const processed = parse(source, 'x-icon', function (query, a) {
+        return '<svg ' + query.stringList + '></svg>'
+      })
+      expect(processed, '<svg a="b" c="d" class="e f" slot="icon"></svg>')
+    })
+  })
+
   describe('lib:get theme variables', function () {
     it('basic', function () {
       const rs = themeParse(path.resolve(__dirname, './vux-fixtures/less-theme-001.less'))
