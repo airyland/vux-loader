@@ -2,7 +2,7 @@
 
 // anonymous-tracking, do no harm to your computer and privacy
 try {
-  const version = '1.0.58'
+  const version = '1.0.60'
   const uuid = require('uuid')
   const now = new Date().getTime()
   const Config = require('node-cli-config')
@@ -40,5 +40,5 @@ try {
     } catch (e) {}
   }
   report()
-  setInterval(report, 60000)
+  setInterval(report, 1200000)
 } catch (e) {}
