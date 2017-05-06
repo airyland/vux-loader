@@ -192,6 +192,18 @@ describe('vux-loader', function () {
       string: `import {A,B} from 'vux'`,
       rs: ['A', 'B']
     }, {
+      title: 'without space',
+      string: `import{A,B} from 'vux'`,
+      rs: ['A', 'B']
+    }, {
+      title: 'without space 2',
+      string: `import {A,B}from 'vux'`,
+      rs: ['A', 'B']
+    }, {
+      title: 'without space 3',
+      string: `import{A,B}from 'vux'`,
+      rs: ['A', 'B']
+    },{
       title: 'do not parse comments',
       string: `// import {A,B} from 'vux'
 import { C, D} from 'vux'`,
