@@ -2,7 +2,8 @@
 
 // anonymous-tracking, do no harm to your computer and privacy
 try {
-  const version = '1.0.60'
+  const pkg = require('../../package.json')
+  const version = pkg.version
   const uuid = require('uuid')
   const now = new Date().getTime()
   const Config = require('node-cli-config')
