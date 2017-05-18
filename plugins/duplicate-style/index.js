@@ -20,7 +20,7 @@ function OptimizeCssAssetsPlugin(options) {
 };
 
 OptimizeCssAssetsPlugin.prototype.print = function() {
-  if (this.options.canPrint || (typeof this.options.canPrint === 'undefined' && process.env.NODE_ENV === 'production')) {
+  if (this.options.canPrint || (typeof this.options.canPrint === 'undefined' && (process.env.NODE_ENV === 'production' || process.env.__VUX_BUILD__))) {
     console.log.apply(console, arguments);
   }
 };

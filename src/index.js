@@ -16,10 +16,6 @@ const templateLoader = path.join(__dirname, './template-loader.js')
 const jsLoader = path.join(__dirname, './js-loader.js')
 const afterLessLoader = path.join(__dirname, './after-less-loader.js')
 
-if (process.env.NODE_ENV !== 'production' && !process.env.VUE_ENV && !/build\/build/.test(process.argv) && !/webpack\.prod/.test(process.argv)) {
-  require('./libs/report')
-}
-
 const projectRoot = process.cwd()
 
 const getLessVariables = require('./libs/get-less-variables')
@@ -106,6 +102,7 @@ function getFirstPlugin(name, list) {
 
 // merge vux options and return new webpack config
 module.exports.merge = function (oldConfig, vuxConfig) {
+
   oldConfig = Object.assign({
     plugins: []
   }, oldConfig)
@@ -123,7 +120,20 @@ module.exports.merge = function (oldConfig, vuxConfig) {
   }
 
   if (!vuxConfig.options) {
-    vuxConfig.options = {}
+    vuxConfig.options = {
+      buildEnvs: ['production']
+    }
+  }
+
+  const buildEnvs = vuxConfig.options.buildEnvs || ['production']
+  if (buildEnvs.indexOf(process.env.NODE_ENV) !== -1) {
+    process.env.__VUX_BUILD__ = true
+  } else {
+    process.env.__VUX_BUILD__ = false
+  }
+
+  if (process.env.__VUX_BUILD__ === false && (process.env.NODE_ENV !== 'production' && !process.env.VUE_ENV && !/build\/build/.test(process.argv) && !/webpack\.prod/.test(process.argv))) {
+    require('./libs/report')
   }
 
   if (!vuxConfig.plugins) {
