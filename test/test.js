@@ -162,13 +162,23 @@ describe('vux-loader', function () {
   describe('parse virtual component', function () {
     const parse = require('../src/libs/parse-virtual-component')
     it('basic', function () {
-      const source = `
-  <x-icon a="b" c="d" class="e f" slot="icon"></x-icon>
-      `
+      const source = `<x-icon a="b" c="d" class="e f" slot="icon"></x-icon>`
       const processed = parse(source, 'x-icon', function (query, a) {
         return '<svg ' + query.stringList + '></svg>'
       })
-      expect(processed, '<svg a="b" c="d" class="e f" slot="icon"></svg>')
+      expect(processed).to.equal('<svg a="b" c="d" class="e f" slot="icon"></svg>')
+    })
+  })
+
+  describe('parse virtual component with click event', function () {
+    const parse = require('../src/libs/parse-virtual-component')
+    it('basic', function () {
+      const source = `<x-icon a="b" c="d" class="e f" slot="icon" @click.native="handler"></x-icon>`
+      const processed = parse(source, 'x-icon', function (query, a) {
+        console.log(query.stringList)
+        return '<svg ' + query.stringList + '></svg>'
+      })
+      expect(processed).to.equal('<svg a="b" c="d" class="e f" slot="icon" @click="handler"></svg>')
     })
   })
 

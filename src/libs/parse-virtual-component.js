@@ -14,7 +14,7 @@ function getAttributes (string) {
 
   let obj = {}
   let list = match.map(one => {
-    return one.replace(/^\s+|\s+$/g, '')
+    return one.replace(/^\s+|\s+$/g, '').replace(/\.native/g, '')
   })
 
   for (let i = 0; i < list.length; i++) {
