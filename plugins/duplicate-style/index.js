@@ -66,7 +66,11 @@ OptimizeCssAssetsPlugin.prototype.apply = function(compiler) {
             }
             var processedCss = result.css;
             assets[assetName] = self.createCssAsset(processedCss, asset);
-            self.print('Processed ' + assetName + ', before: ' + originalCss.length + ', after: ' + processedCss.length + ', ratio: ' + (Math.round(((processedCss.length * 100) / originalCss.length) * 100) / 100) + '%')
+            var ratio = ''
+            if (originalCss.length) {
+              ratio = ', ratio:' + (Math.round(((processedCss.length * 100) / originalCss.length) * 100) / 100) + '%'
+            }
+            self.print('Processed ' + assetName + ', before: ' + originalCss.length + ', after: ' + processedCss.length + ratio)
           }, function(err) {
             hasErrors = true;
             self.print('Error processing file: ' + assetName)

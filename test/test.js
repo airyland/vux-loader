@@ -175,7 +175,6 @@ describe('vux-loader', function () {
     it('basic', function () {
       const source = `<x-icon a="b" c="d" class="e f" slot="icon" @click.native="handler"></x-icon>`
       const processed = parse(source, 'x-icon', function (query, a) {
-        console.log(query.stringList)
         return '<svg ' + query.stringList + '></svg>'
       })
       expect(processed).to.equal('<svg a="b" c="d" class="e f" slot="icon" @click="handler"></svg>')
