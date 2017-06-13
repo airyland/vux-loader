@@ -8,6 +8,7 @@ const fs = require('fs')
 const path = require('path')
 const matchI18nReg = /\$t\('?(.*?)'?\)/g
 const parseVirtualComponent = require('./libs/parse-virtual-component')
+const parseXIcon = require('./libs/parse-x-icon')
 
 const getName = function (path) {
   return path.replace(/\\/g, '/').split('components')[1].replace('index.vue', '').replace(/\//g, '')
@@ -29,32 +30,7 @@ module.exports = function (source) {
 
   // x-icon
   if (config.options.useVuxUI && source.indexOf('</x-icon>') > -1) {
-    source = parseVirtualComponent(source, 'x-icon', function (query) {
-        let size = query.objectList.size || 24
-        let type = query.objectList.type
-        let svgPath = path.resolve(config.options.projectRoot, `node_modules/vux/src/icons/${type}.svg`)
-        if (config.options.vuxDev) {
-          svgPath = path.resolve(config.options.projectRoot, `src/icons/${type}.svg`)
-        }
-
-        // merge classname
-        let className = `vux-x-icon vux-x-icon-${type}`
-        if (query.objectList.class) {
-          className += ` ${query.objectList.class}`
-        }
-
-        let props = ''
-        for (let i in query.objectList) {
-          if (i !== 'class') {
-            props += ` ${i}="${query.objectList[i]}"`
-          }
-        }
- 
-        const content = fs.readFileSync(svgPath, 'utf-8')
-        return content.replace('width="512"', `width="${size}"`)
-        .replace('height="512"', `height="${size}"`)
-        .replace('<svg', `<svg class="${className}" ${props}`)
-    })
+    source = parseXIcon(source, config)
   }
 
   const locales = this.vuxLocales || utils.getLoaderConfig(this, 'vuxLocales')

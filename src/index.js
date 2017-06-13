@@ -15,6 +15,7 @@ const styleLoader = path.join(__dirname, './style-loader.js')
 const templateLoader = path.join(__dirname, './template-loader.js')
 const jsLoader = path.join(__dirname, './js-loader.js')
 const afterLessLoader = path.join(__dirname, './after-less-loader.js')
+const beforeTemplateCompilerLoader = path.join(__dirname, './before-template-compiler-loader.js')
 
 const projectRoot = process.cwd()
 
@@ -59,6 +60,8 @@ module.exports = function (source) {
   const STYLE = utils.stringifyRequest(this, styleLoader).replace(/"/g, '')
   const AFTER_LESS_STYLE = utils.stringifyRequest(this, afterLessLoader).replace(/"/g, '')
   const TEMPLATE = utils.stringifyRequest(this, templateLoader).replace(/"/g, '')
+  const BEFORE_TEMPLATE_COMPILER = utils.stringifyRequest(this, beforeTemplateCompilerLoader).replace(/"/g, '')
+
 
   var query = utils.parseQuery(this.query)
   this.cacheable()
@@ -81,7 +84,7 @@ module.exports = function (source) {
 
   source = addScriptLoader(source, SCRIPT)
   source = addStyleLoader(source, STYLE, variables, AFTER_LESS_STYLE)
-  source = addTemplateLoader(source, TEMPLATE)
+  source = addTemplateLoader(source, TEMPLATE, BEFORE_TEMPLATE_COMPILER)
 
   return source
 }
@@ -442,7 +445,7 @@ function addScriptLoader(source, SCRIPT) {
   return rs
 }
 
-function addTemplateLoader(source, TEMPLATE) {
+function addTemplateLoader(source, TEMPLATE, BEFORE_TEMPLATE_COMPILER) {
   var rs = source.replace(/require\("(.*)"\)/g, function (content) {
     // get script type
     if (/type=template/.test(content)) {
@@ -451,6 +454,9 @@ function addTemplateLoader(source, TEMPLATE) {
       loaders = loaders.map(function (item) {
         if (/type=template/.test(item)) {
           item = TEMPLATE + '!' + item
+        }
+        if (item.indexOf('template-compiler/index') !== -1) {
+          item = item + '!' + BEFORE_TEMPLATE_COMPILER
         }
         return item
       }).join('!')
