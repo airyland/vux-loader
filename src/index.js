@@ -222,7 +222,11 @@ module.exports.merge = function (oldConfig, vuxConfig) {
   if (typeof isWebpack2 === 'undefined') {
     const compareVersions = require('compare-versions')
     const pkg = require(path.resolve(vuxConfig.options.projectRoot, 'package.json'))
-    isWebpack2 = compareVersions(pkg.devDependencies.webpack.replace('^', '').replace('~', ''), '2.0.0') > -1
+    if (pkg.devDependencies.webpack) {
+      isWebpack2 = compareVersions(pkg.devDependencies.webpack.replace('^', '').replace('~', ''), '2.0.0') > -1
+    } else {
+      isWebpack2 = true
+    }
   }
 
   if (!isWebpack2) {
