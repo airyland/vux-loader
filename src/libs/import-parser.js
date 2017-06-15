@@ -12,8 +12,7 @@ function parse(source, fn, moduleName) {
   const reg = getReg(moduleName)
 
   let replaceList = []
-  removeComments(source).replace(reg, function (match1, match2, match3) {
-
+  removeComments(removeCommentLine(source)).replace(reg, function (match1, match2, match3) {
     // dirty way for the moment
     if(match1.indexOf('import') !== match1.lastIndexOf('import')) {
       match1 = match1.slice(match1.lastIndexOf('import'), match1.length)
@@ -42,6 +41,16 @@ module.exports = parse
 
 function getReg(moduleName) {
   return new RegExp(`import\\s.*(\\n(?!import).*)*from(\\s)+('|")${moduleName}('|")`, 'g')
+}
+
+function removeCommentLine (source) {
+  return source.split('\n').map(function (line) {
+    var line = line.replace(/^\s+|\s+$/g, '')
+    if (line.indexOf('//') === 0) {
+      line = ''
+    }
+    return line
+  }).join('\n')
 }
 
 function getNames(one) {

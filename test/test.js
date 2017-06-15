@@ -307,6 +307,15 @@ import ToastPlugin from 'vux/src/plugins/Toast'
 `)
     })
 
+    it('vux test7', function () {
+      const rs = parse(`import {AlertPlugin, ToastPlugin} from 'vux'
+// import { AlertPlugin } from 'vux'`, vuxMapper)
+      expect(rs).to.equal(`import AlertPlugin from 'vux/src/plugins/Alert'
+import ToastPlugin from 'vux/src/plugins/Toast'
+
+// import { AlertPlugin } from 'vux'`)
+    })
+
   })
 
   describe('plugin:less-theme', function () {
