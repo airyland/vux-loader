@@ -5,6 +5,8 @@ function parse(source, fn, moduleName) {
   // ref https://github.com/airyland/vux/issues/1365
   source = source.replace(/import{/g, 'import {')
   source = source.replace(/\/\/\n/g, '')
+  source = trimLine(source)
+  
   moduleName = moduleName || 'vux'
   if ((moduleName && source.indexOf(moduleName) === -1) || source.indexOf('import') === -1) {
     return source
@@ -40,7 +42,7 @@ function parse(source, fn, moduleName) {
 module.exports = parse
 
 function getReg(moduleName) {
-  return new RegExp(`import\\s.*(\\n(?!import).*)*from(\\s)+('|")${moduleName}('|")`, 'g')
+  return new RegExp(`import\\s.*(\\n(?!import).*)*from(\\s)+('|")${moduleName}('|");*`, 'g')
 }
 
 function removeCommentLine (source) {
@@ -80,6 +82,30 @@ function getNames(one) {
     return one
   })
   return list
+}
+
+function trimLine (str) {
+  let isImport = false
+  let list = str.split('\n')
+  for (let i = 0; i < list.length; i++) {
+    let currentLine = trim(list[i])
+    if (/import/.test(currentLine) && !/from\s+('|")vux('|")/.test(currentLine)) {
+      isImport = true
+    } else if (/from\s+('|")(.+)('|")/.test(currentLine)) {
+      if (isImport) {
+        isImport = false
+      }
+    }  else {
+      if (isImport) {
+        list[i] = trim(list[i])
+      }
+    }  
+  }
+  return list.join('\n')
+}
+
+function trim (str) {
+  return str.replace(/^\s+/, '').replace(/\s+$/, '')
 }
 
 // http://james.padolsey.com/javascript/removing-comments-in-javascript/
