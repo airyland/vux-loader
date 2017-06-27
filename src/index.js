@@ -63,7 +63,7 @@ module.exports = function (source) {
   const BEFORE_TEMPLATE_COMPILER = utils.stringifyRequest(this, beforeTemplateCompilerLoader).replace(/"/g, '')
 
 
-  var query = utils.parseQuery(this.query)
+  var query = this.query ? utils.parseQuery(this.query) : {}
   this.cacheable()
   if (!source) return source
   const config = this.vux || utils.getLoaderConfig(this, 'vux')
