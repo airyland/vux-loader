@@ -33,6 +33,7 @@ function parse(source, fn, moduleName) {
       replaceList.push([match1, replaceString])
     }
   })
+  source = removeCommentLine(source)
   replaceList.forEach(function (one) {
     source = source.replace(one[0], one[1])
   })
