@@ -428,46 +428,73 @@ module.exports.merge = function (oldConfig, vuxConfig) {
   return config
 }
 
+const _addScriptLoader = function (content, SCRIPT) {
+  // get script type
+  if (/type=script/.test(content)) {
+    // split loaders
+    var loaders = content.split('!')
+    loaders = loaders.map(function (item) {
+      if (/type=script/.test(item)) {
+        item = SCRIPT + '!' + item
+      }
+      return item
+    }).join('!')
+    content = loaders
+  } else if (/require\("!!babel-loader/.test(content)) {
+    content = content.replace('!!babel-loader!', `!!babel-loader!${SCRIPT}!`)
+  }
+  return content
+}
+
 function addScriptLoader(source, SCRIPT) {
-  var rs = source.replace(/require\("(.*)"\)/g, function (content) {
-    // get script type
-    if (/type=script/.test(content)) {
-      // split loaders
-      var loaders = content.split('!')
-      loaders = loaders.map(function (item) {
-        if (/type=script/.test(item)) {
-          item = SCRIPT + '!' + item
-        }
-        return item
-      }).join('!')
-      content = loaders
-    } else if (/require\("!!babel-loader/.test(content)) {
-      content = content.replace('!!babel-loader!', `!!babel-loader!${SCRIPT}!`)
-    }
-    return content
-  })
+  var rs = source
+  if (rs.indexOf('import __vue_script__ from') === -1) {
+    rs = rs.replace(/require\("(.*)"\)/g, function (content) {
+      return _addScriptLoader(content, SCRIPT)
+    })
+  } else {
+    // for vue-loader@13
+    rs = rs.replace(/import\s__vue_script__\sfrom\s"(.*?)"/g, function (content) {
+      return _addScriptLoader(content, SCRIPT)
+    })
+  }
   return rs
 }
 
+const _addTemplateLoader = function (content, TEMPLATE, BEFORE_TEMPLATE_COMPILER) {
+  // get script type
+  if (/type=template/.test(content)) {
+    // split loaders
+    var loaders = content.split('!')
+    loaders = loaders.map(function (item) {
+      if (/type=template/.test(item)) {
+        item = TEMPLATE + '!' + item
+      }
+      if (item.indexOf('template-compiler/index') !== -1) {
+        item = item + '!' + BEFORE_TEMPLATE_COMPILER
+      }
+      return item
+    }).join('!')
+    content = loaders
+  }
+  return content
+}
+
 function addTemplateLoader(source, TEMPLATE, BEFORE_TEMPLATE_COMPILER) {
-  var rs = source.replace(/require\("(.*)"\)/g, function (content) {
-    // get script type
-    if (/type=template/.test(content)) {
-      // split loaders
-      var loaders = content.split('!')
-      loaders = loaders.map(function (item) {
-        if (/type=template/.test(item)) {
-          item = TEMPLATE + '!' + item
-        }
-        if (item.indexOf('template-compiler/index') !== -1) {
-          item = item + '!' + BEFORE_TEMPLATE_COMPILER
-        }
-        return item
-      }).join('!')
-      content = loaders
-    }
-    return content
-  })
+  source = source.replace(/\\"/g, '__VUX__')
+  var rs = source
+  if (rs.indexOf('import __vue_template__ from') === -1) {
+    rs = rs.replace(/require\("(.*)"\)/g, function (content) {
+      return _addTemplateLoader(content, TEMPLATE, BEFORE_TEMPLATE_COMPILER)
+    })
+  } else {
+    // for vue-loader@13
+    rs = rs.replace(/import\s__vue_template__\sfrom\s"(.*?)"/g, function (content) {
+      return _addTemplateLoader(content, TEMPLATE, BEFORE_TEMPLATE_COMPILER)
+    })
+  }
+  
+  rs = rs.replace(/__VUX__/g, '\\"')
   return rs
 }
 
