@@ -338,10 +338,13 @@ module.exports.merge = function (oldConfig, vuxConfig) {
   if (typeof rewriteConfig === 'undefined' || rewriteConfig === true) {
     let hasAppendVuxLoader = false
     config.module[loaderKey].forEach(function (rule) {
-      if (rule.loader === 'vue' || rule.loader === 'vue-loader') {
-        if (!isWebpack2 || (isWebpack2 && !rule.options && !rule.query)) {
+      const hasVueLoader = rule.use && rule.use.length && rule.use.filter(function(one) {
+        return one.loader === 'vue-loader'
+      }).length === 1
+      if (rule.loader === 'vue' || rule.loader === 'vue-loader' || hasVueLoader) {
+        if (!isWebpack2 || (isWebpack2 && !rule.options && !rule.query && !hasVueLoader)) {
           rule.loader = loaderString
-        } else if (isWebpack2 && (rule.options || rule.query)) {
+        } else if (isWebpack2 && (rule.options || rule.query) && !hasVueLoader) {
           delete rule.loader
           rule.use = [
          'vux-loader',
@@ -352,6 +355,8 @@ module.exports.merge = function (oldConfig, vuxConfig) {
          }]
           delete rule.options
           delete rule.query
+        } else if (isWebpack2 && hasVueLoader) {
+          rule.use.unshift('vux-loader')
         }
         hasAppendVuxLoader = true
       }
