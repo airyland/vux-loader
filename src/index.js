@@ -338,7 +338,7 @@ module.exports.merge = function (oldConfig, vuxConfig) {
   if (typeof rewriteConfig === 'undefined' || rewriteConfig === true) {
     let hasAppendVuxLoader = false
     config.module[loaderKey].forEach(function (rule) {
-      const hasVueLoader = rule.use && rule.use.length && rule.use.filter(function(one) {
+      const hasVueLoader = rule.use && _.isArray(rule.use) && rule.use.length && rule.use.filter(function(one) {
         return one.loader === 'vue-loader'
       }).length === 1
       if (rule.loader === 'vue' || rule.loader === 'vue-loader' || hasVueLoader) {
