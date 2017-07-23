@@ -2,6 +2,7 @@
 
 const utils = require('loader-utils')
 const path = require('path')
+const pkg = require('../package')
 
 module.exports = function (source) {
   this.cacheable()
@@ -43,5 +44,18 @@ module.exports = function (source) {
       }
     })
   }
+
+  if (/main\.js/.test(this.resourcePath) && process.env.NODE_ENV === 'development') {
+    if (this.options && this.options.context) {
+      const pkgPath = vuxConfig.options.vuxDev ? path.join(this.options.context, 'package.json') : path.join(this.options.context, 'node_modules/vux/package.json')
+      const vuxPkg = require(pkgPath)
+      const webpackPath = path.join(this.options.context, 'node_modules/webpack/package.json')
+      const webpackPkg = require(webpackPath)
+      const nodeVersion = process.version.match(/^v(\d+\.\d+)/)[1]
+      const style = 'background: #35495e; color: yellow;'
+      source += `\n;console.info('[VUX] 提 Issue 时麻烦附上以下版本信息以及必要的显示截图、重现步骤、代码(代码请不要截图)。 \\n[VUX] %cvux@${vuxPkg.version}, vux-loader@${pkg.version}, webpack@${webpackPkg.version}, node@${nodeVersion}\\n%c[VUX] 建议反馈请访问 https://github.com/airyland/vux/issues', '${style}', '')`
+    }
+  }
+
   return source
 }
