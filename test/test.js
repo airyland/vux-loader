@@ -191,6 +191,8 @@ describe('vux-loader', function () {
       const rs = themeParse(path.resolve(__dirname, './vux-fixtures/less-theme-002.less'))
       expect(rs.a).to.equal('b')
       expect(rs.c).to.equal('d')
+      expect(rs.d).to.equal('e')
+      expect(rs.f).to.equal('g')
     })
   })
 
