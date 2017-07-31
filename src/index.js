@@ -374,12 +374,19 @@ module.exports.merge = function (oldConfig, vuxConfig) {
    */
   config.module[loaderKey].forEach(function (rule) {
     if (rule.loader === 'babel' || rule.loader === 'babel-loader' || (/babel/.test(rule.loader) && !/!/.test(rule.loader))) {
-      if (isWebpack2 && rule.query) {
+      if (isWebpack2 && (rule.query || rule.options)) {
+        let options
+        if(rule.options){
+          options = rule.options
+          delete rule.options
+        }else{
+          options = rule.query
+          delete rule.query
+        }
         rule.use = [jsLoader, {
           loader: 'babel-loader',
-          query: rule.query
+          options: options
         }]
-        delete rule.query
         delete rule.loader
       } else {
         rule.loader = 'babel-loader!' + jsLoader
