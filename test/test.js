@@ -218,8 +218,7 @@ describe('vux-loader', function () {
       title: 'do not parse comments',
       string: `// import {A,B} from 'vux'
 import { C, D} from 'vux'`,
-      rs: `// import {A,B} from 'vux'
-import { C, D } from 'vux'`
+      rs: `\nimport { C, D } from 'vux'`
     }, {
       title: 'use as',
       string: `import {A,B as C} from 'vux'`,
@@ -315,7 +314,7 @@ import ToastPlugin from 'vux/src/plugins/Toast'
       expect(rs).to.equal(`import AlertPlugin from 'vux/src/plugins/Alert'
 import ToastPlugin from 'vux/src/plugins/Toast'
 
-// import { AlertPlugin } from 'vux'`)
+`)
     })
 
     it('issue #1579 (1)', function () {
