@@ -13,6 +13,7 @@ function OptimizeCssAssetsPlugin(options) {
     cssProcessor: require('cssnano'),
     assetNameRegExp : /\.css$/g,
     cssProcessorOptions : {
+      safe: true,
       zindex: false,
       autoprefixer: false
     }
