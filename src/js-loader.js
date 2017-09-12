@@ -53,7 +53,9 @@ module.exports = function (source) {
       const webpackPkg = require(webpackPath)
       const nodeVersion = process.version.match(/^v(\d+\.\d+)/)[1]
       const style = 'background: #35495e; color: yellow;'
-      source += `\n;console.info('[VUX] 提 Issue 时麻烦附上以下版本信息以及必要的显示截图、重现步骤、代码(代码请不要截图)。 \\n[VUX] %cvux@${vuxPkg.version}, vux-loader@${pkg.version}, webpack@${webpackPkg.version}, node@${nodeVersion}\\n%c[VUX] 建议反馈请访问 https://github.com/airyland/vux/issues', '${style}', '')`
+      if (typeof vuxConfig.options.showVuxVersionInfo === 'undefined' || vuxConfig.options.showVuxVersionInfo === true) {
+        source += `\n;console.info('[VUX] %cvux@${vuxPkg.version}, vux-loader@${pkg.version}, webpack@${webpackPkg.version}, node@${nodeVersion}\\n%c[VUX] 建议反馈请访问 https://github.com/airyland/vux/issues \\n[VUX] 关闭该提示请在 vux-loader 配置  options: { showVuxVersionInfo: false }', '${style}', '')`
+      }
     }
   }
 
