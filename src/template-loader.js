@@ -70,6 +70,21 @@ module.exports = function (source) {
     if (!dynamic) {
       source = source.replace(matchI18nReg, function (a, b) {
         let key = `vux.${name}.${b}`
+
+        if (a.indexOf('/*') > -1) {
+          const start = a.indexOf('/*')
+          const end = a.indexOf('*/')
+          const str = a.slice(start + 2, end - 1)
+          const map = {}
+          const list = str.split(',').map(one => {
+            one = one.trim()
+            const pair = one.split(':').map(one => one.trim())
+            map[pair[0]] = pair[1]
+          })
+
+          return map[locale]
+        }
+
         if (a.indexOf("'") > -1) { // 用于翻译字符
           return "'" + locales[locale][key] + "'"
         } else { // 用于翻译变量，如 $t(text)
