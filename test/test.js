@@ -14,6 +14,13 @@ var normalizeNewline = require('normalize-newline')
 
 var vuxLoader = require('../src/index.js')
 
+function getOptionsPlugin (config) {
+  const match = config.plugins.filter(one => {
+    return one.constructor.name === 'LoaderOptionsPlugin'
+  })
+  return match[0]
+}
+
 // var loaderPath = 'expose-loader?vueModule!' + path.resolve(__dirname, '../node_modules/vue-loader/index.js')
 var loaderPath = 'expose-loader?vueModule!' + path.resolve(__dirname, '../src/index.js') + '!vue-loader'
 var mfs = new MemoryFS()
@@ -452,7 +459,7 @@ import ToastPlugin from 'vux/src/plugins/Toast'
         }
       })
 
-      expect(config1.plugins[0].options.vux.options.env).to.equal('env1')
+      expect(getOptionsPlugin(config1).options.vux.options.env).to.equal('env1')
 
       const config2 = vuxLoader.merge(config1, {
         options: {
@@ -460,7 +467,7 @@ import ToastPlugin from 'vux/src/plugins/Toast'
         }
       })
 
-      expect(config2.plugins[0].options.vux.options.env).to.equal('env2')
+      expect(getOptionsPlugin(config2).options.vux.options.env).to.equal('env2')
     })
 
     it('should merge plugins with the same name', function () {
@@ -472,8 +479,8 @@ import ToastPlugin from 'vux/src/plugins/Toast'
         }]
       })
 
-      expect(config1.plugins[0].options.vux.plugins.length).to.equal(1)
-      expect(config1.plugins[0].options.vux.plugins[0].arg).to.equal(1)
+      expect(getOptionsPlugin(config1).options.vux.plugins.length).to.equal(1)
+      expect(getOptionsPlugin(config1).options.vux.plugins[0].arg).to.equal(1)
 
       const config2 = vuxLoader.merge(config1, {
         plugins: [{
@@ -482,8 +489,8 @@ import ToastPlugin from 'vux/src/plugins/Toast'
         }]
       })
 
-      expect(config1.plugins[0].options.vux.plugins.length).to.equal(1)
-      expect(config1.plugins[0].options.vux.plugins[0].arg).to.equal(2)
+      expect(getOptionsPlugin(config1).options.vux.plugins.length).to.equal(1)
+      expect(getOptionsPlugin(config1).options.vux.plugins[0].arg).to.equal(2)
 
     })
 
@@ -508,7 +515,7 @@ import ToastPlugin from 'vux/src/plugins/Toast'
         }
       })
 
-      expect(config1.plugins[0].options.vux.plugins.length).to.equal(0)
+      expect(getOptionsPlugin(config1).options.vux.plugins.length).to.equal(0)
 
     })
 
@@ -525,8 +532,8 @@ import ToastPlugin from 'vux/src/plugins/Toast'
         }]
       })
 
-      expect(config1.plugins[0].options.vux.allPlugins.length).to.equal(1)
-      expect(config1.plugins[0].options.vux.plugins.length).to.equal(1)
+      expect(getOptionsPlugin(config1).options.vux.allPlugins.length).to.equal(1)
+      expect(getOptionsPlugin(config1).options.vux.plugins.length).to.equal(1)
 
       const config2 = vuxLoader.merge(config1, {
         plugins: [{
@@ -534,8 +541,8 @@ import ToastPlugin from 'vux/src/plugins/Toast'
         }]
       })
 
-      expect(config2.plugins[0].options.vux.allPlugins.length).to.equal(2)
-      expect(config2.plugins[0].options.vux.plugins.length).to.equal(2)
+      expect(getOptionsPlugin(config2).options.vux.allPlugins.length).to.equal(2)
+      expect(getOptionsPlugin(config2).options.vux.plugins.length).to.equal(2)
 
        const config3 = vuxLoader.merge(config2, {
         plugins: [{
@@ -544,8 +551,8 @@ import ToastPlugin from 'vux/src/plugins/Toast'
         }]
       })
 
-      expect(config3.plugins[0].options.vux.allPlugins.length).to.equal(3)
-      expect(config3.plugins[0].options.vux.plugins.length).to.equal(2)
+      expect(getOptionsPlugin(config3).options.vux.allPlugins.length).to.equal(3)
+      expect(getOptionsPlugin(config3).options.vux.plugins.length).to.equal(2)
 
     })
   })
