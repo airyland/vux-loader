@@ -289,22 +289,6 @@ module.exports.merge = function (oldConfig, vuxConfig) {
     config.plugins.push(new ProgressBarPlugin(pluginConfig.options || {}))
   }
 
-  /** global variable V_LOCALE **/
-  let locale = ''
-  if (hasPlugin('i18n', vuxConfig.plugins)) {
-    const config = getFirstPlugin('i18n', vuxConfig.plugins)
-    if (config.vuxStaticReplace && config.vuxLocale) {
-      locale = config.vuxLocale
-    } else if (config.vuxStaticReplace === false) {
-      locale = 'MULTI'
-    }
-  } else {
-    locale = 'zh-CN'
-  }
-  config.plugins.push(new webpack.DefinePlugin({
-    V_LOCALE: JSON.stringify(locale)
-  }))
-
   if (hasPlugin('vux-ui', vuxConfig.plugins)) {
     let mapPath = path.resolve(vuxConfig.options.projectRoot, 'node_modules/vux/src/components/map.json')
     if (vuxConfig.options.vuxDev) {
@@ -455,6 +439,36 @@ module.exports.merge = function (oldConfig, vuxConfig) {
   if (hasPlugin('html-build-callback', vuxConfig.plugins)) {
     let pluginConfig = getFirstPlugin('html-build-callback', vuxConfig.plugins)
     config.plugins.push(new htmlBuildCallbackPlugin(pluginConfig))
+  }
+
+   /**
+   *======== global variable V_LOCALE ========
+   */
+  let locale = ''
+  if (hasPlugin('i18n', vuxConfig.plugins)) {
+    const config = getFirstPlugin('i18n', vuxConfig.plugins)
+    if (config.vuxStaticReplace && config.vuxLocale) {
+      locale = config.vuxLocale
+    } else if (config.vuxStaticReplace === false) {
+      locale = 'MULTI'
+    }
+  } else {
+    locale = 'zh-CN'
+  }
+
+  // check if already defined V_LOCALE
+  let matchLocale = config.plugins.filter(one => {
+    if (one.constructor.name === 'DefinePlugin') {
+      if (one.definitions && one.definitions.V_LOCALE) {
+        return true
+      }
+    }
+    return false
+  })
+  if (!matchLocale.length) {
+    config.plugins.push(new webpack.DefinePlugin({
+      V_LOCALE: JSON.stringify(locale)
+    }))
   }
 
   return config
