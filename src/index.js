@@ -373,7 +373,7 @@ module.exports.merge = function (oldConfig, vuxConfig) {
    * ======== append js-loader ========
    */
   config.module[loaderKey].forEach(function (rule) {
-    if (rule.use && rule.use[0] === 'babel-loader') {
+    if (rule.use && (rule.use[0] === 'babel-loader' || (typeof rule.use[0] === 'object' && rule.use[0].loader === 'babel-loader'))) {
       rule.use.push(jsLoader)
     } else {
       if (rule.loader === 'babel' || rule.loader === 'babel-loader' || (/babel/.test(rule.loader) && !/!/.test(rule.loader))) {
