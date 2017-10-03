@@ -494,6 +494,9 @@ const _addScriptLoader = function (content, SCRIPT) {
 
 function addScriptLoader(source, SCRIPT) {
   var rs = source
+  // escape \" first so the following regexp works fine
+  rs = rs.replace(/\\"/g, '$VUX$')
+
   if (rs.indexOf('import __vue_script__ from') === -1) {
     rs = rs.replace(/require\("(.*)"\)/g, function (content) {
       return _addScriptLoader(content, SCRIPT)
@@ -504,6 +507,9 @@ function addScriptLoader(source, SCRIPT) {
       return _addScriptLoader(content, SCRIPT)
     })
   }
+
+  // replace \" back
+  rs = rs.replace(/\$VUX\$/g, '\\"')
   return rs
 }
 
