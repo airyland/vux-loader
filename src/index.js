@@ -456,6 +456,14 @@ module.exports.merge = function (oldConfig, vuxConfig) {
     locale = 'zh-CN'
   }
 
+  /**
+  *======== global variable V_SSR ========
+  */
+  let ssr = false
+  if (vuxConfig.options.ssr) {
+    ssr = true
+  }
+
   // check if already defined V_LOCALE
   let matchLocale = config.plugins.filter(one => {
     if (one.constructor.name === 'DefinePlugin') {
@@ -467,7 +475,8 @@ module.exports.merge = function (oldConfig, vuxConfig) {
   })
   if (!matchLocale.length) {
     config.plugins.push(new webpack.DefinePlugin({
-      V_LOCALE: JSON.stringify(locale)
+      V_LOCALE: JSON.stringify(locale),
+      V_SSR: JSON.stringify(ssr)
     }))
   }
 
@@ -596,7 +605,7 @@ function getBabelLoader(projectRoot, name) {
 
   const componentPath = fs.realpathSync(projectRoot + `/node_modules/${name}/`) // https://github.com/webpack/webpack/issues/1643
   const regex = new RegExp(`node_modules.*${name}.src.*?js$`)
-
+  console.log('real path', componentPath)
   return {
     test: regex,
     loader: 'babel-loader',
