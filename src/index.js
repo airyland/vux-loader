@@ -611,7 +611,6 @@ function getBabelLoader(projectRoot, name) {
 
   const componentPath = fs.realpathSync(projectRoot + `/node_modules/${name}/`) // https://github.com/webpack/webpack/issues/1643
   const regex = new RegExp(`node_modules.*${name}.src.*?js$`)
-  console.log('real path', componentPath)
   return {
     test: regex,
     loader: 'babel-loader',
