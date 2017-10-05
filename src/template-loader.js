@@ -9,6 +9,8 @@ const path = require('path')
 const matchI18nReg = /\$t\('?(.*?)'?\)/g
 const parseVirtualComponent = require('./libs/parse-virtual-component')
 const parseXIcon = require('./libs/parse-x-icon')
+const removeTagCode = require('./libs/getTag').removeTagCode
+const reserveTagCode = require('./libs/getTag').reserveTagCode
 
 const getName = function (path) {
   return path.replace(/\\/g, '/').split('components')[1].replace('index.vue', '').replace(/\//g, '')
@@ -31,6 +33,15 @@ module.exports = function (source) {
   // x-icon
   if (config.options.useVuxUI && source.indexOf('</x-icon>') > -1) {
     source = parseXIcon(source, config)
+  }
+
+  // v-no-ssr
+  if (config.options.ssr) {
+    source = removeTagCode(source, 'v-no-ssr')
+    source = reserveTagCode(source, 'v-ssr')
+  } else {
+    source = removeTagCode(source, 'v-ssr')
+    source = reserveTagCode(source, 'v-no-ssr')
   }
 
   const locales = this.vuxLocales || utils.getLoaderConfig(this, 'vuxLocales')

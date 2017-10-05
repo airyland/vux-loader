@@ -128,6 +128,10 @@ module.exports.merge = function (oldConfig, vuxConfig) {
     }
   }
 
+  if (typeof vuxConfig.options.ssr === 'undefined') {
+    vuxConfig.options.ssr = false
+  }
+
   const buildEnvs = vuxConfig.options.buildEnvs || ['production']
   if (buildEnvs.indexOf(process.env.NODE_ENV) !== -1) {
     process.env.__VUX_BUILD__ = true
