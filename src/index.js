@@ -7,6 +7,7 @@ const utils = require('loader-utils')
 const less = require('less')
 const yaml = require('js-yaml')
 const _ = require('lodash')
+const pkg = require('../package')
 
 var webpack = require('webpack')
 
@@ -480,7 +481,8 @@ module.exports.merge = function (oldConfig, vuxConfig) {
   if (!matchLocale.length) {
     config.plugins.push(new webpack.DefinePlugin({
       V_LOCALE: JSON.stringify(locale),
-      V_SSR: JSON.stringify(ssr)
+      V_SSR: JSON.stringify(ssr),
+      SUPPORT_SSR_TAG: JSON.stringify(true)
     }))
   }
 
