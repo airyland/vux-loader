@@ -52,8 +52,8 @@ module.exports = function (source) {
   let dynamic = false
   let locale = 'zh-CN'
   let vuxFunctionName = '$t'
-  let functionName = '__'
-  let staticTranslations = null
+  let functionName = '$t'
+  let staticTranslations = {}
   let langs = ['en', 'zh-CN']
   let staticReplace
 
@@ -66,9 +66,9 @@ module.exports = function (source) {
     dynamic = !i18nPluginsMatch[0].vuxStaticReplace
     locale = i18nPluginsMatch[0].vuxLocale || 'zh-CN'
     vuxFunctionName = i18nPluginsMatch[0].vuxFunctionName || '$t'
-    functionName = i18nPluginsMatch[0].functionName || '__'
+    functionName = i18nPluginsMatch[0].functionName || '$t'
     langs = i18nPluginsMatch[0].localeList || langs
-    staticTranslations = i18nPluginsMatch[0].staticTranslations || null
+    staticTranslations = i18nPluginsMatch[0].staticTranslations || {}
     staticReplace = typeof i18nPluginsMatch[0].staticReplace === 'undefined' ? undefined : i18nPluginsMatch[0].staticReplace
   } else {
     dynamic = false
@@ -117,7 +117,7 @@ module.exports = function (source) {
     let matchI18nReg = new RegExp(`\$${functionName}\('?(.*?)'?\)`, 'g')
     source = source.replace(matchI18nReg, function (a, b) {
       if (a.indexOf("'") > -1) {
-        return `${i18nPluginsMatch[0].staticTranslations[b] || b}`
+        return `${ staticTranslations[b] || b }`
       }
     })
   }
@@ -144,7 +144,7 @@ module.exports = function (source) {
     }
 
     // 非 vux 组件才需要生成语言
-    if (!isVuxVueFile && plugin.name === 'i18n') {
+    if (!isVuxVueFile && plugin.name === 'i18n' && plugin.extractToFiles) {
 
       const savePath = path.resolve(config.options.projectRoot, plugin.extractToFiles)
 
