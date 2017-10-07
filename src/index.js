@@ -87,6 +87,15 @@ module.exports = function (source) {
   source = addStyleLoader(source, STYLE, variables, AFTER_LESS_STYLE)
   source = addTemplateLoader(source, TEMPLATE, BEFORE_TEMPLATE_COMPILER)
 
+  // fix style path in dev mode
+  if (config.options.vuxDev) {
+    source = source.replace(/vux\/src\/styles\/(.*?)/g, '../styles/$1')
+  }
+
+  if (/IconLoading/.test(this.resourcePath)) {
+    console.log(source)
+  }
+
   return source
 }
 
