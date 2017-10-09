@@ -2,6 +2,8 @@
 
 const utils = require('loader-utils')
 const fs = require('fs')
+const i18nReplaceForScript = require('../libs/replace-i18n-for-script').replace
+const getI18nBlockWithLocale = require('../libs/get-i18n-block').getWithLocale
 
 module.exports = function (source) {
   this.cacheable()
@@ -9,6 +11,18 @@ module.exports = function (source) {
   const config = this.vux || utils.getLoaderConfig(this, 'vux')
   if (!config.plugins || !config.plugins.length) {
     return source
+  }
+
+  let i18nPlugin
+  const i18nPluginsMatch = config.plugins.filter(function (one) {
+    return one.name === 'i18n'
+  })
+  if (i18nPluginsMatch.length) {
+    i18nPlugin = i18nPluginsMatch[0]
+  }
+  let isVuxVueFile = this.resourcePath.replace(/\\/g, '/').indexOf('vux/src/components') > -1
+  if (config.options.vuxDev && this.resourcePath.replace(/\\/g, '/').indexOf('src/components') > -1) {
+    isVuxVueFile = true
   }
 
   const isVuxComponent = this.resourcePath.replace(/\\/g, '/').indexOf('/vux/src/components') > -1
@@ -52,6 +66,18 @@ module.exports = function (source) {
 
   if (config.options.vuxWriteFile === true) {
     fs.writeFileSync(this.resourcePath + '.vux.js', source)
+  }
+
+  if (i18nPlugin && !isVuxVueFile && source.indexOf(`$t('`) > -1 && i18nPlugin.staticReplace === true) {
+    const rs = getI18nBlockWithLocale({
+      code: _this.resourcePath,
+      isFile: true,
+      locale: i18nPlugin.vuxLocale || 'zh-CN'
+    })
+    source = i18nReplaceForScript(source, rs)
+    if (/Actionsheet/.test(this.resourcePath)) {
+      console.log(source)
+    }
   }
 
   return source

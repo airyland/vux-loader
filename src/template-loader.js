@@ -12,6 +12,9 @@ const parseXIcon = require('./libs/parse-x-icon')
 const removeTagCode = require('./libs/getTag').removeTagCode
 const reserveTagCode = require('./libs/getTag').reserveTagCode
 
+const i18nParser = require('../libs/parse-i18n-function').parse
+const getI18nBlockWithLocale = require('../libs/get-i18n-block').getWithLocale
+
 const getName = function (path) {
   return path.replace(/\\/g, '/').split('components')[1].replace('index.vue', '').replace(/\//g, '')
 }
@@ -114,12 +117,20 @@ module.exports = function (source) {
     }
   } else if (!isVuxVueFile && source.indexOf(`${functionName}(`) > -1 && staticTranslations && staticReplace === true) {
     // 对于项目文件进行静态替换
+    /**
     let matchI18nReg = new RegExp(`\$${functionName}\('?(.*?)'?\)`, 'g')
     source = source.replace(matchI18nReg, function (a, b) {
       if (a.indexOf("'") > -1) {
         return `${ staticTranslations[b] || b }`
       }
     })
+    */
+    const rs = getI18nBlockWithLocale({
+      code: _this.resourcePath,
+      isFile: true,
+      locale: locale
+    })
+    source = i18nParser(source, rs)
   }
 
   config.plugins.forEach(function (plugin) {

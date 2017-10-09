@@ -92,10 +92,6 @@ module.exports = function (source) {
     source = source.replace(/vux\/src\/styles\/(.*?)/g, '../styles/$1')
   }
 
-  if (/IconLoading/.test(this.resourcePath)) {
-    console.log(source)
-  }
-
   return source
 }
 

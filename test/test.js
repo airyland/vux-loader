@@ -13,8 +13,12 @@ var compiler = require('vue-loader/lib/template-compiler')
 var normalizeNewline = require('normalize-newline')
 
 var vuxLoader = require('../src/index.js')
+var i18nParser = require('../libs/parse-i18n-function').parse
+const i18nParserForScript = require('../libs/replace-i18n-for-script').replace
+const getI18nBlock = require('../libs/get-i18n-block').get
+const getI18nBlockWithLocale = require('../libs/get-i18n-block').getWithLocale
 
-function getOptionsPlugin (config) {
+function getOptionsPlugin(config) {
   const match = config.plugins.filter(one => {
     return one.constructor.name === 'LoaderOptionsPlugin'
   })
@@ -140,8 +144,8 @@ import {
     } from 'vux';
 
 `, function (opts) {
-      // console.log(opts)
-    })
+  // console.log(opts)
+})
 
 var themeParse = require('../src/libs/get-less-variables')
 
@@ -165,6 +169,127 @@ var vuxMapper = function (opts) {
 }
 
 describe('vux-loader', function () {
+
+  describe('get i18n block', function () {
+
+    it('basic', function () {
+      const rs = getI18nBlock(`sfdsf<i18n>
+a:
+  en: en_a
+  zh-CN: zh-CN_a
+</i18n>sdfdsf`)
+      expect(rs.a.en).to.equal('en_a')
+    })
+
+     it('return empty object for wrong format', function () {
+      const rs = getI18nBlock(`sfdsf<i18n>
+a:
+en: en_a
+  zh-CN: zh-CN_a
+</i18n>sdfdsf`)
+      expect(JSON.stringify(rs)).to.equal('{}')
+    })
+
+
+  it('with locale', function () {
+      const rs = getI18nBlockWithLocale({code: `sfdsf<i18n>
+a:
+  en: en_a
+  zh-CN: zh-CN_a
+</i18n>sdfdsf`,
+locale: 'en'})
+      expect(rs.a).to.equal('en_a')
+    })
+
+  })
+
+  describe('parse i18n for js', function () {
+    const rs = i18nParserForScript(`this.$t('a')`, {})
+    expect(rs).to.equal(`'a'`)
+  })
+
+  describe('parse i18n', function () {
+
+    const map = {
+      a: 'A',
+      b: 'B',
+      c: 'C',
+      d: 'D'
+    }
+
+    const source1 = `<div :a="$t('a')">
+<p :c="d" e="f" g="hh">
+<span :options="['a', 'b', 'c', 'd']"></span>
+<span :obj="{a:'aa',b:'bb', c:$t('ee')}"></span>
+<span v-html="$t('sdfsdf')"></span>
+<span v-html="$t('sdfsdf') + $t('sfowewf') + $t('92fdf')"></span>
+{{ $t('dd') }}
+</p>
+</div>`
+
+    const cases = [{
+      raw: `<div :a="$t('a')"></div>`,
+      rs: `<div :a="'A'"></div>`
+}, {
+      raw: `<div :a="$t('x')"></div>`,
+      rs: `<div :a="'x'"></div>`
+}, {
+      raw: `<div :a='$t("a")'></div>`,
+      rs: `<div :a="'A'"></div>`
+}, {
+      raw: `<div v-html="$t('a')"></div>`,
+      rs: `<div v-html="'A'"></div>`
+}, {
+      raw: `<div :a="$t('a') + $t('b')"></div>`,
+      rs: `<div :a="'A' + 'B'"></div>`
+}, {
+      raw: `<div :a="$t('a') + 'B'"></div>`,
+      rs: `<div :a="'A' + 'B'"></div>`
+}, {
+      raw: `<div :a="$t('a') * 'B'"></div>`,
+      rs: `<div :a="'A' * 'B'"></div>`
+}, {
+      raw: `<div :a="{c: $t('a')}"></div>`,
+      rs: `<div :a="{ c: 'A' }"></div>`
+}, {
+      raw: `<div :a="{c: $t('a') + 'B'}"></div>`,
+      rs: `<div :a="{ c: 'A' + 'B' }"></div>`
+}, {
+      raw: `<div :a="{c: $t('a') + 'B', b: 'C' + $t('b')}"></div>`,
+      rs: `<div :a="{
+c: 'A' + 'B',
+b: 'C' + 'B' }"></div>`
+}, {
+      raw: `<div :a="[$t('a')]"></div>`,
+      rs: `<div :a="['A']"></div>`
+}, {
+      raw: `<div :a="[$t('a'),$t('b')]"></div>`,
+      rs: `<div :a="[
+'A',
+'B' ]"></div>`
+}, {
+      raw: `xx {{ $t('a') }}`,
+      rs: `xx A`
+}, {
+      raw: `xx {{ $t('a') }} {{$t('b')}}`,
+      rs: `xx A B`
+}, {
+      raw: `xx {{ $t('a') }} {{ $t('dfsf' + 'dsfdsf') }}`,
+      rs: `xx A {{ $t('dfsf' + 'dsfdsf') }}`
+}, {
+      raw: `xx {{ $tt('a') }}`,
+      rs: `xx {{ $tt('a') }}`
+}]
+
+    cases.forEach((one, index) => {
+      it(`test ${index + 1}`, function () {
+        const rs = i18nParser(one.raw, map)
+        expect(rs === one.rs).to.equal(true)
+      })
+
+    })
+
+  })
 
   describe('parse virtual component', function () {
     const parse = require('../src/libs/parse-virtual-component')
@@ -232,7 +357,7 @@ describe('vux-loader', function () {
       title: 'without space 3',
       string: `import{A,B}from 'vux'`,
       rs: ['A', 'B']
-    },{
+    }, {
       title: 'do not parse comments',
       string: `// import {A,B} from 'vux'
 import { C, D} from 'vux'`,
@@ -275,36 +400,36 @@ import { C } from 'vux'`
 import value2name from 'vux/src/filters/value2name'`,
       rs: `import { Group, Cell } from 'vux'
 import value2name from 'vux/src/filters/value2name'`
-},{
-  title: 'vux test3',
-  string: `import {Group,
+}, {
+      title: 'vux test3',
+      string: `import {Group,
 Cell} from 'vux'
 import value2name from 'vux/src/filters/value2name'`,
-  rs: `import { Group, Cell } from 'vux'
+      rs: `import { Group, Cell } from 'vux'
 import value2name from 'vux/src/filters/value2name'`
-},{
-  title: 'vux test4',
-  string: `import { M1, M2 } from 'vux'
+}, {
+      title: 'vux test4',
+      string: `import { M1, M2 } from 'vux'
 import { mapMutations, mapState } from 'vuex'
 import { Group, Cell } from 'vux'
 import { Group1, Cell1 } from 'vux'
 import value2name from 'vux/src/filters/value2name'`,
-  rs: `import { M1, M2 } from 'vux'
+      rs: `import { M1, M2 } from 'vux'
 import { mapMutations, mapState } from 'vuex'
 import { Group, Cell } from 'vux'
 import { Group1, Cell1 } from 'vux'
 import value2name from 'vux/src/filters/value2name'`
 }, {
-  title: 'vux test5',
-  string: `import {
+      title: 'vux test5',
+      string: `import {
 XX,
 YY} from 'vux'`,
-  rs: `import { XX, YY } from 'vux'`
+      rs: `import { XX, YY } from 'vux'`
 }, {
-  title: 'vux test6',
-  string: `/**/
+      title: 'vux test6',
+      string: `/**/
 import {Divider } from 'vux'`,
-  rs: `/**/
+      rs: `/**/
 import { Divider } from 'vux'`
 }]
 
@@ -555,7 +680,7 @@ import ToastPlugin from 'vux/src/plugins/Toast'
       expect(getOptionsPlugin(config2).options.vux.allPlugins.length).to.equal(2)
       expect(getOptionsPlugin(config2).options.vux.plugins.length).to.equal(2)
 
-       const config3 = vuxLoader.merge(config2, {
+      const config3 = vuxLoader.merge(config2, {
         plugins: [{
           name: 'test3',
           envs: ['env3']
