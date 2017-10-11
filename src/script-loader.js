@@ -75,9 +75,6 @@ module.exports = function (source) {
       locale: i18nPlugin.vuxLocale || 'zh-CN'
     })
     source = i18nReplaceForScript(source, rs)
-    if (/Actionsheet/.test(this.resourcePath)) {
-      console.log(source)
-    }
   }
 
   return source
