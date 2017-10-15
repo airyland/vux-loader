@@ -30,8 +30,12 @@ module.exports = function (source) {
   }
   const basename = path.basename(this.resourcePath)
   let isVuxVueFile = this.resourcePath.replace(/\\/g, '/').indexOf('vux/src/components') > -1
+  let isVuxVueDemo = this.resourcePath.replace(/\\/g, '/').indexOf('vux/src/demos') > -1
   if (config.options.vuxDev && this.resourcePath.replace(/\\/g, '/').indexOf('src/components') > -1) {
     isVuxVueFile = true
+  }
+  if (config.options.vuxDev && this.resourcePath.replace(/\\/g, '/').indexOf('src/demos') > -1) {
+    isVuxVueDemo = true
   }
 
   // x-icon
@@ -84,7 +88,7 @@ module.exports = function (source) {
   const vueVersion = config.options.vueVersion
   const isLt250 = compareVersions(vueVersion, '2.5.0') === -1
   
-  if (isLt250 && isVuxVueFile && /slot-scope=/.test(source)) {
+  if (isLt250 && (isVuxVueFile || isVuxVueDemo) && source.indexOf('slot-scope=') > -1) {
     source = source.replace(/slot-scope=/g, 'scope=')
   }
 
