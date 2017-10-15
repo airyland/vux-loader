@@ -218,6 +218,15 @@ module.exports.merge = function (oldConfig, vuxConfig) {
     vuxConfig.options.projectRoot = projectRoot
   }
 
+  // get vue version
+  let vueVersion
+  try {
+    let vuePackagePath = path.resolve(vuxConfig.options.projectRoot, 'node_modules/vue/package.json')
+    vueVersion = require(vuePackagePath).version
+  } catch (e) {}
+  vuxConfig.options.vueVersion = vueVersion
+
+
   // check webpack version by module.loaders
   let isWebpack2
 

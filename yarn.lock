@@ -572,9 +572,9 @@ commander@2.9.x, commander@^2.9.0:
   dependencies:
     graceful-readlink ">= 1.0.0"
 
-compare-versions@^3.0.0:
-  version "3.0.0"
-  resolved "http://registry.npm.taobao.org/compare-versions/download/compare-versions-3.0.0.tgz#92da44cf19ea53fff6c6e8d4e88221d4e155d672"
+compare-versions@^3.1.0:
+  version "3.1.0"
+  resolved "http://registry.npm.taobao.org/compare-versions/download/compare-versions-3.1.0.tgz#43310256a5c555aaed4193c04d8f154cf9c6efd5"
 
 concat-map@0.0.1:
   version "0.0.1"

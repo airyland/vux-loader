@@ -11,6 +11,7 @@ const parseVirtualComponent = require('./libs/parse-virtual-component')
 const parseXIcon = require('./libs/parse-x-icon')
 const removeTagCode = require('./libs/getTag').removeTagCode
 const reserveTagCode = require('./libs/getTag').reserveTagCode
+const compareVersions = require('compare-versions')
 
 const i18nParser = require('../libs/parse-i18n-function').parse
 const getI18nBlockWithLocale = require('../libs/get-i18n-block').getWithLocale
@@ -77,6 +78,14 @@ module.exports = function (source) {
     dynamic = false
     locale = 'zh-CN'
     vuxFunctionName = '$t'
+  }
+
+  // 对于小于 vue@2.5.0 的版本，将 slot-scope 替换为 scope
+  const vueVersion = config.options.vueVersion
+  const isLt250 = compareVersions(vueVersion, '2.5.0') === -1
+  
+  if (isLt250 && isVuxVueFile && /slot-scope=/.test(source)) {
+    source = source.replace(/slot-scope=/g, 'scope=')
   }
 
   if ((isVuxVueFile) && source.indexOf("$t(") > -1) {
