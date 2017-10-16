@@ -1,7 +1,6 @@
 const parse5 = require('parse5')
 const acorn = require('acorn')
 const escodegen = require('escodegen')
-const walk = require("acorn/dist/walk")
 
 function generateHTML(rs) {
   let processed = escodegen.generate(rs, {
