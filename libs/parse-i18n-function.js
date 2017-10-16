@@ -138,11 +138,6 @@ function parse(code, map) {
 
 exports.parse = parse
 
-
-parse(`<group :title="$t('format') + ':' + format">
-    <datetime v-model="value2" :format="format" @on-change="change" :title="'start time'"></datetime>
-  </group>`, {})
-
 function parseCallExpression (expression, map) {
   for (let i in expression) {
     if (i === 'left' || i === 'right') {
