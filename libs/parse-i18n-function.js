@@ -3,24 +3,27 @@ const acorn = require('acorn')
 const escodegen = require('escodegen')
 
 function generateHTML(rs) {
-  let processed = escodegen.generate(rs, {
-    format: {
-      semicolons: false,
-      quotes: 'single',
-      compact: false,
-      indent: {
-        style: '',
-        base: 0,
-        adjustMultilineComment: false
+  try {
+    let processed = escodegen.generate(rs, {
+      format: {
+        semicolons: false,
+        quotes: 'single',
+        compact: false,
+        indent: {
+          style: '',
+          base: 0,
+          adjustMultilineComment: false
+        }
       }
-    }
-  })
-  processed = processed.replace(/;$/, '')
-    .replace(/;\s/g, ' ')
-    .replace('let VALUE = ', '')
-    .replace(/;,/g, ',')
-    .replace(/;]/g, ']')
-  return processed
+    })
+    processed = processed.replace(/;$/, '')
+      .replace(/;\s/g, ' ')
+      .replace('let VALUE = ', '')
+      .replace(/;,/g, ',')
+      .replace(/;]/g, ']')
+    return processed
+  } catch (e) {
+  }
 }
 
 function parseExpression(list, key, map) {
@@ -96,8 +99,10 @@ function parseAttrs(nodes, map) {
             return a
           } else {
             let html = generateHTML(rs)
-            html = html.replace(/^'(.*?)'$/, '$1')
-            return html
+            if (html) {
+              html = html.replace(/^'(.*?)'$/, '$1')
+              return html
+            }
           }
         } else {
           return a
@@ -116,8 +121,11 @@ function parseAttrs(nodes, map) {
 
           let rs = doParseExpression(attr.value, map)
           let processed = generateHTML(rs)
-
-          attr.value = processed
+          if (processed) {
+            attr.value = processed
+          } else {
+            // stay unchanged
+          }
         }
 
       }
