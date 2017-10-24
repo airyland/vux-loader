@@ -38,7 +38,7 @@ module.exports = function (source) {
     })
   }
 
-  if (config.options.useVuxUI && /}\s+from(.*?)'vux/.test(source)) {
+  if (config.options.useVuxUI && /}\s+from(.*?)('|")vux/.test(source)) {
     const maps = this.vuxMaps || utils.getLoaderConfig(this, 'vuxMaps')
     const parser = require('./libs/import-parser')
     source = parser(source, function (opts) {
