@@ -4,7 +4,6 @@ module.exports = function (source, name, cb) {
   const reg = new RegExp(`<${name}(.*?)>.*?</${name}>`, 'g')
   source = source.replace(reg, function (a, b) {
     let query = getAttributes(a)
-    console.log('attributes', query)
     return cb(query, a)
   })
   return source
