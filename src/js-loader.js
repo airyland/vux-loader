@@ -45,6 +45,7 @@ module.exports = function (source) {
     })
   }
 
+  /**
   if (/main\.js/.test(this.resourcePath) && process.env.NODE_ENV === 'development') {
     if (this.options && this.options.context) {
       const pkgPath = vuxConfig.options.vuxDev ? path.join(this.options.context, 'package.json') : path.join(this.options.context, 'node_modules/vux/package.json')
@@ -58,6 +59,7 @@ module.exports = function (source) {
       }
     }
   }
+  **/
 
   return source
 }
