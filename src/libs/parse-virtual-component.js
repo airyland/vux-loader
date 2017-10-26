@@ -4,6 +4,7 @@ module.exports = function (source, name, cb) {
   const reg = new RegExp(`<${name}(.*?)>.*?</${name}>`, 'g')
   source = source.replace(reg, function (a, b) {
     let query = getAttributes(a)
+    console.log('attributes', query)
     return cb(query, a)
   })
   return source
@@ -21,7 +22,12 @@ function getAttributes (string) {
     const pair = list[i].split('=').map(one => {
       return one.replace(/"/g, '')
     })
-    obj[pair[0]] = pair[1]
+    if (pair.length === 2) {
+      obj[pair[0]] = pair[1]
+    } else if (pair.length > 2) {
+      obj[pair[0]] = pair.slice(1).join('=')
+    }
+    
   }
   return {
     stringList: list.join(' '),
