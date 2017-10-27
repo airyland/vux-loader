@@ -145,7 +145,7 @@ module.exports.merge = function (oldConfig, vuxConfig) {
     process.env.__VUX_BUILD__ = false
   }
 
-  if (process.env.__VUX_BUILD__ === false && (process.env.NODE_ENV !== 'production' && !process.env.VUE_ENV && !/build\/build/.test(process.argv) && !/webpack\.prod/.test(process.argv))) {
+  if (process.env.__VUX_BUILD__.toString() === 'false' && (process.env.NODE_ENV !== 'production' && !process.env.VUE_ENV && !/build\/build/.test(process.argv) && !/webpack\.prod/.test(process.argv))) {
     require('./libs/report')
   }
 
