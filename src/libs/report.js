@@ -34,7 +34,6 @@ try {
   const report = function () {
     try {
       const url = `/vux-loader-anonymous-tracking.html?version=${version}&platform=${platform}&uuid=${user}&start=${firstTime}&count=${count}`
-      console.log('url', url)
       const res = https.get({
         hostname: 'vux.li',
         path: url
