@@ -19,7 +19,9 @@ module.exports = function (source) {
         if (vuxConfig.options.vuxDev) {
           file = file.replace('vux/src/', './')
         }
-        str += `import ${component.newName} from '${file}'\n`
+        if (component.newName) {
+          str += `import ${component.newName} from '${file}'\n`
+        }
       })
       return str
     }, 'vux')
