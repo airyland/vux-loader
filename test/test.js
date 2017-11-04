@@ -337,6 +337,12 @@ b: 'C' + 'B' }"></div>`
       expect(rs.d).to.equal('e')
       expect(rs.f).to.equal('g')
     })
+
+    it('import files', function () {
+      const rs = themeParse(path.resolve(__dirname, './vux-fixtures/less-theme-import.less'))
+      expect(rs.x).to.equal('x')
+      expect(rs.y).to.equal('z')
+    })
   })
 
   describe('lib:import-parser', function () {
