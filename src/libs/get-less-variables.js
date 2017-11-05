@@ -33,7 +33,10 @@ function getContent (file) {
 
     var _pair = item.split(':')
 
-    if (_pair.length < 2 && /@import/.test(_pair[0])) {
+    if (_pair.length < 2) {
+      if (!/@import/.test(_pair[0])) {
+        return
+      }
       let partFile = _pair[0]
       .replace(/;/g, '')
       .replace('@import', '')
