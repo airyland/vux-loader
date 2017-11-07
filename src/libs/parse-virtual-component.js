@@ -1,7 +1,7 @@
 'use strict'
 
 module.exports = function (source, name, cb) {
-  const reg = new RegExp(`<${name}(.*?)>.*?</${name}>`, 'g')
+  const reg = new RegExp(`<${name}([\\s\\S]*?)>.*?</${name}>`, 'g')
   source = source.replace(reg, function (a, b) {
     let query = getAttributes(a)
     return cb(query, a)

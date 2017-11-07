@@ -302,6 +302,20 @@ b: 'C' + 'B' }"></div>`
     })
   })
 
+  describe('parse virtual component with break line', function () {
+    const parse = require('../src/libs/parse-virtual-component')
+    it('basic', function () {
+      const source = `<x-icon a="b"
+      type="arrow-up-b"
+      size="10"
+      v-if="0 == 0"></x-icon>`
+      const processed = parse(source, 'x-icon', function (query, a) {
+        return '<svg ' + query.stringList + '></svg>'
+      })
+      expect(processed).to.equal('<svg a="b" type="arrow-up-b" size="10" v-if="0 == 0"></svg>')
+    })
+  })
+
   describe('parse virtual component', function () {
     const parse = require('../src/libs/parse-virtual-component')
     it('basic', function () {
