@@ -58,7 +58,9 @@ module.exports = function (source) {
             file = file.replace(/vux\/src/g, relative)
           }
         }
-        str += `import ${component.newName} from '${file}'\n`
+        if (component.newName) {
+          str += `import ${component.newName} from '${file}'\n`
+        }
       })
       return str
     }, 'vux')
