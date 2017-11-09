@@ -63,6 +63,8 @@ function getNames(one) {
   const list = content.split(',').map(one => {
     return one.replace(/^\s+|\s+$/g, '')
       .replace(/\n/g, '')
+  }).filter(one => {
+    return !!one
   }).map(one => {
 
     if (!/\s+/.test(one)) {

@@ -366,6 +366,10 @@ b: 'C' + 'B' }"></div>`
       string: `import {A,B} from 'vux'`,
       rs: ['A', 'B']
     }, {
+      title: 'basic',
+      string: `import {A,B,} from 'vux'`,
+      rs: ['A', 'B']
+    }, {
       title: 'without space',
       string: `import{A,B} from 'vux'`,
       rs: ['A', 'B']
@@ -404,7 +408,7 @@ B } from "vux"`,
       title: 'no match',
       string: `import {A,B} from 'vvv'`,
       rs: `import {A,B} from 'vvv'`
-    }, , {
+    }, {
       title: 'more codes',
       string: `import C from 'XY'
 import { D } from 'ZW'
