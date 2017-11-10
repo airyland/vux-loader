@@ -389,6 +389,35 @@ module.exports.merge = function (oldConfig, vuxConfig) {
   }
 
   /**
+   * ======== append js-loader for ts-loader ========
+   */
+  config.module[loaderKey].forEach(function (rule) {
+    if (rule.use && (rule.use[0] === 'ts-loader' || (typeof rule.use[0] === 'object' && rule.use[0].loader === 'ts-loader'))) {
+      rule.use.push(jsLoader)
+    } else {
+      if (rule.loader === 'ts' || rule.loader === 'ts-loader' || (/ts/.test(rule.loader) && !/!/.test(rule.loader))) {
+        if (isWebpack2 && (rule.query || rule.options)) {
+          let options
+          if(rule.options){
+            options = rule.options
+            delete rule.options
+          }else{
+            options = rule.query
+            delete rule.query
+          }
+          rule.use = [{
+            loader: 'ts-loader',
+            options: options
+          }, jsLoader]
+          delete rule.loader
+        } else {
+          rule.loader = 'ts-loader!' + jsLoader
+        }
+      }
+    }
+  })
+
+  /**
    * ======== append js-loader ========
    */
   config.module[loaderKey].forEach(function (rule) {
