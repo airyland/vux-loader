@@ -1,6 +1,7 @@
 'use strict'
 const fs = require('fs')
 const path = require('path')
+const stripeComments = require('strip-css-comments')
 
 module.exports = function getLessVariables(theme) {
   return getContent(theme)
@@ -16,7 +17,8 @@ function trim (str) {
 }
 
 function getContent (file) {
-  var themeContent = fs.readFileSync(file, 'utf-8')
+  let themeContent = fs.readFileSync(file, 'utf-8')
+  themeContent = stripeComments(themeContent)
   var variables = {}
   themeContent.split('\n').forEach(function (item) {
     if (trim(item).indexOf('//') === 0 || trim(item).indexOf('/*') === 0) {
@@ -49,8 +51,9 @@ function getContent (file) {
         variables[i] = partVariables[i]
       }
     } else {
-      var key = _pair[0].replace('\r', '').replace('@', '')
+      let key = _pair[0].replace('\r', '').replace('@', '')
       if (!key) return;
+      key = key.trim()
       if (!/^[A-Za-z0-9_-]*$/.test(key)) {
         console.log(`[vux-loader] 疑似不合法命名，将被忽略：${key}`)
         return
