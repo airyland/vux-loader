@@ -1,5 +1,7 @@
 'use strict'
 
+const stripComments = require('strip-comments')
+
 function parse(source, fn, moduleName) {
   // fix no space between import and { 
   // ref https://github.com/airyland/vux/issues/1365
@@ -47,13 +49,15 @@ function getReg(moduleName) {
 }
 
 function removeCommentLine (source) {
-  return source.split('\n').map(function (line) {
-    var line = line.replace(/^\s+|\s+$/g, '')
-    if (line.indexOf('//') === 0) {
-      line = ''
+  const rs = source.split('\n').map(function (line) {
+    line = line.replace(/^\s+|\s+$/g, '')
+    try {
+      line = stripComments.line(line)
+    } catch (e) {
     }
     return line
   }).join('\n')
+  return rs
 }
 
 function getNames(one) {
