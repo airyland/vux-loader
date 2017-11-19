@@ -546,6 +546,15 @@ const _addScriptLoader = function (content, SCRIPT) {
     content = loaders
   } else if (/require\("!!babel-loader/.test(content)) {
     content = content.replace('!!babel-loader!', `!!babel-loader!${SCRIPT}!`)
+  } else if (/import\s__vue_script__\sfrom\s"!!babel\-loader!\.\/(.*?)"/.test(content)) {
+    let loaders = content.split('!')
+    loaders = loaders.map(function (item) {
+      if (item === 'babel-loader') {
+        item += '!' + SCRIPT
+      }
+      return item
+    })
+    return loaders.join('!')
   }
   return content
 }
