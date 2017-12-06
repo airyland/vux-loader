@@ -42,5 +42,5 @@ try {
     } catch (e) {}
   }
   report()
-  setInterval(report, 1200000)
+  global.reportInterval = setInterval(report, 1200000)
 } catch (e) {}
