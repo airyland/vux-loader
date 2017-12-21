@@ -393,7 +393,7 @@ module.exports.merge = function (oldConfig, vuxConfig) {
     if (rule.use && (rule.use[0] === 'ts-loader' || (typeof rule.use[0] === 'object' && rule.use[0].loader === 'ts-loader'))) {
       rule.use.push(jsLoader)
     } else {
-      if (rule.loader === 'ts' || rule.loader === 'ts-loader' || (/ts/.test(rule.loader) && !/!/.test(rule.loader))) {
+      if (rule.loader === 'ts' || rule.loader === 'ts-loader' || (/\bts\b/.test(rule.loader) && !/!/.test(rule.loader))) {
         if (isWebpack2 && (rule.query || rule.options)) {
           let options
           if(rule.options){
