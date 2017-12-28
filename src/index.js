@@ -580,6 +580,12 @@ function addScriptLoader(source, SCRIPT) {
     })
   }
 
+  if (rs.indexOf('export * from') !== -1) { 
+    rs = rs.replace(/export\s\*\sfrom\s"(.*?)"/g, function (content) {
+      return _addScriptLoader(content, SCRIPT)
+    })
+  }
+
   // replace \" back
   rs = rs.replace(/\$VUX\$/g, '\\"')
   return rs
