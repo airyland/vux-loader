@@ -591,7 +591,7 @@ function addScriptLoader(source, SCRIPT) {
     })
   }
 
-  if (rs.indexOf('export * from') !== -1) { 
+  if (rs.indexOf('export * from') !== -1) {
     rs = rs.replace(/export\s\*\sfrom\s"(.*?)"/g, function (content) {
       return _addScriptLoader(content, SCRIPT)
     })
@@ -624,17 +624,30 @@ const _addTemplateLoader = function (content, TEMPLATE, BEFORE_TEMPLATE_COMPILER
 function addTemplateLoader(source, TEMPLATE, BEFORE_TEMPLATE_COMPILER) {
   source = source.replace(/\\"/g, '__VUX__')
   var rs = source
-  if (rs.indexOf('import __vue_template__ from') === -1) {
-    rs = rs.replace(/require\("(.*)"\)/g, function (content) {
+  let doParse = false
+
+  if (rs.indexOf('import {render as __vue_render__, staticRenderFns as __vue_static_render_fns__} from') !== -1) {
+    // for vue-loader@14
+    rs = rs.replace(/import\s{render\sas\s__vue_render__,\sstaticRenderFns\sas\s__vue_static_render_fns__}\sfrom\s"(.*?)"/g, function (content) {
       return _addTemplateLoader(content, TEMPLATE, BEFORE_TEMPLATE_COMPILER)
     })
-  } else {
+    doParse = true
+  }
+
+  if (!doParse && rs.indexOf('import __vue_template__ from') !== -1) {
     // for vue-loader@13
     rs = rs.replace(/import\s__vue_template__\sfrom\s"(.*?)"/g, function (content) {
       return _addTemplateLoader(content, TEMPLATE, BEFORE_TEMPLATE_COMPILER)
     })
+    doParse = true
   }
-  
+
+  if (!doParse && rs.indexOf('import __vue_template__ from') === -1) {
+    rs = rs.replace(/require\("(.*)"\)/g, function (content) {
+      return _addTemplateLoader(content, TEMPLATE, BEFORE_TEMPLATE_COMPILER)
+    })
+  }
+
   rs = rs.replace(/__VUX__/g, '\\"')
   return rs
 }
