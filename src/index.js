@@ -570,7 +570,18 @@ const _addScriptLoader = function (content, SCRIPT) {
       }
       return item
     })
-    return loaders.join('!')
+    content = loaders.join('!')
+  }
+
+  if (content.indexOf('export * from') !== -1) {
+    let loaders = content.split('!')
+    loaders = loaders.map(function (item) {
+      if (item === 'babel-loader') {
+        item += '!' + SCRIPT
+      }
+      return item
+    })
+    content = loaders.join('!')
   }
   return content
 }
