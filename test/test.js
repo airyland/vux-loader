@@ -300,6 +300,36 @@ b: 'C' + 'B' }"></div>`
       })
       expect(processed).to.equal('<svg type="arrow-up-b" size="10" v-if="0 == 0"></svg>')
     })
+
+    it('basic', function () {
+      const source = `<x-icon type="arrow-up-b" size="10" v-if="0 == 0"/>`
+      const processed = parse(source, 'x-icon', function (query, a) {
+        return '<svg ' + query.stringList + '></svg>'
+      })
+      expect(processed).to.equal('<svg type="arrow-up-b" size="10" v-if="0 == 0"></svg>')
+    })
+
+    it('basic', function () {
+      const source = `<x-icon
+      type="arrow-up-b" size="10"
+      v-if="0 == 0"/>`
+      const processed = parse(source, 'x-icon', function (query, a) {
+        return '<svg ' + query.stringList + '></svg>'
+      })
+      expect(processed).to.equal('<svg type="arrow-up-b" size="10" v-if="0 == 0"></svg>')
+    })
+
+    it('basic', function () {
+      const source = `<x-icon
+      type="arrow-up-b"
+      size="10"
+      v-if="0 == 0"
+      />`
+      const processed = parse(source, 'x-icon', function (query, a) {
+        return '<svg ' + query.stringList + '></svg>'
+      })
+      expect(processed).to.equal('<svg type="arrow-up-b" size="10" v-if="0 == 0"></svg>')
+    })
   })
 
   describe('parse virtual component with break line', function () {

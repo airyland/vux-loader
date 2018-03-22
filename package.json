@@ -1,6 +1,6 @@
 {
   "name": "vux-loader",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "extended loader for vue-loader",
   "main": "src/index.js",
   "keywords": [

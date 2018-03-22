@@ -1,8 +1,14 @@
 'use strict'
 
 module.exports = function (source, name, cb) {
-  const reg = new RegExp(`<${name}([\\s\\S]*?)>.*?</${name}>`, 'g')
-  source = source.replace(reg, function (a, b) {
+  const reg1 = new RegExp(`<${name}([\\s\\S]*?)>.*?</${name}>`, 'g')
+  source = source.replace(reg1, function (a, b) {
+    let query = getAttributes(a)
+    return cb(query, a)
+  })
+  // for <x-icon />
+  const reg2 = new RegExp(`<${name}([\\s\\S]*?)\/>`, 'g')
+  source = source.replace(reg2, function (a, b) {
     let query = getAttributes(a)
     return cb(query, a)
   })
@@ -26,7 +32,7 @@ function getAttributes (string) {
     } else if (pair.length > 2) {
       obj[pair[0]] = pair.slice(1).join('=')
     }
-    
+
   }
   return {
     stringList: list.join(' '),
