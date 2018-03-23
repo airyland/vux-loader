@@ -320,15 +320,13 @@ b: 'C' + 'B' }"></div>`
     })
 
     it('basic', function () {
-      const source = `<x-icon
-      type="arrow-up-b"
-      size="10"
-      v-if="0 == 0"
-      />`
+      const source = `<x-icon type="ios-ionic-outline" size="30"/>
+      <x-icon type="ios-ionic-outline" size="30"></x-icon>`
       const processed = parse(source, 'x-icon', function (query, a) {
         return '<svg ' + query.stringList + '></svg>'
       })
-      expect(processed).to.equal('<svg type="arrow-up-b" size="10" v-if="0 == 0"></svg>')
+      expect(processed).to.equal(`<svg type="ios-ionic-outline" size="30"></svg>
+      <svg type="ios-ionic-outline" size="30"></svg>`)
     })
   })
 

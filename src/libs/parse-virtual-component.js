@@ -1,6 +1,7 @@
 'use strict'
 
 module.exports = function (source, name, cb) {
+  source = replaceEnd(source, name)
   const reg1 = new RegExp(`<${name}([\\s\\S]*?)>.*?</${name}>`, 'g')
   source = source.replace(reg1, function (a, b) {
     let query = getAttributes(a)
@@ -13,6 +14,31 @@ module.exports = function (source, name, cb) {
     return cb(query, a)
   })
   return source
+}
+
+function replaceEnd(str, name) {
+  const list = str.split('')
+
+  let start = false
+  let end = false
+  for (let i = 0; i < list.length; i++) {
+    if (list[i] === '<' && list[i + 1] !== '/') {
+      if (list.slice(i + 1, i + 1 + name.length).join('') === name) {
+        start = true
+      } else {
+        start = false
+      }
+    }
+    if (list[i] === '/' && list[i + 1] === '>') {
+      if (start) {
+        end = true
+        list[i] = 'V'
+        list[i + 1] = 'V'
+      }
+    }
+  }
+
+  return list.join('').replace(/VV/g, `></${name}>`)
 }
 
 function getAttributes (string) {

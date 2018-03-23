@@ -39,7 +39,7 @@ module.exports = function (source) {
   }
 
   // x-icon
-  if (config.options.useVuxUI && source.indexOf('</x-icon>') > -1) {
+  if (config.options.useVuxUI && source.indexOf('<x-icon') > -1) {
     source = parseXIcon(source, config)
   }
 
