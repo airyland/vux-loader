@@ -219,9 +219,7 @@ module.exports.merge = function (oldConfig, vuxConfig) {
   try {
     let vuePackagePath = path.resolve(vuxConfig.options.projectRoot, 'node_modules/vux/package.json')
     vuxVersion = require(vuePackagePath).version
-  } catch (e) {
-    console.log(e)
-  }
+  } catch (e) {}
 
   // get vue version
   let vueVersion

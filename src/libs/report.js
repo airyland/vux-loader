@@ -3,7 +3,6 @@ const querystring = require('querystring')
 
 // anonymous-tracking, do no harm to your computer and privacy
 module.exports = function (options) {
-  console.log(options)
   try {
     const pkg = require('../../package.json')
     const version = pkg.version
