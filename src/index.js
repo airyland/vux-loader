@@ -145,7 +145,6 @@ module.exports.merge = function (oldConfig, vuxConfig) {
     process.env.__VUX_BUILD__ = false
   }
 
-  require('./libs/report')
 
   if (!vuxConfig.plugins) {
     vuxConfig.plugins = []
@@ -216,6 +215,14 @@ module.exports.merge = function (oldConfig, vuxConfig) {
     vuxConfig.options.projectRoot = projectRoot
   }
 
+  let vuxVersion
+  try {
+    let vuePackagePath = path.resolve(vuxConfig.options.projectRoot, 'node_modules/vux/package.json')
+    vuxVersion = require(vuePackagePath).version
+  } catch (e) {
+    console.log(e)
+  }
+
   // get vue version
   let vueVersion
   try {
@@ -223,6 +230,11 @@ module.exports.merge = function (oldConfig, vuxConfig) {
     vueVersion = require(vuePackagePath).version
   } catch (e) {}
   vuxConfig.options.vueVersion = vueVersion
+
+  require('./libs/report')({
+    vueVersion: vueVersion,
+    vuxVersion: vuxVersion
+  })
 
 
   // check webpack version by module.loaders
