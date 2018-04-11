@@ -58,6 +58,8 @@ OptimizeCssAssetsPlugin.prototype.apply = function(compiler) {
         self.print('Processing ' + assetName + '...')
         var asset = assets[assetName];
         var originalCss = asset.source();
+        // avoid 0% => 0
+        originalCss = originalCss.replace(/:\s*0%/g, ':1234%')
         var promise = self.processCss(originalCss)
         promise.then(
           function (result) {
@@ -66,6 +68,8 @@ OptimizeCssAssetsPlugin.prototype.apply = function(compiler) {
               return;
             }
             var processedCss = result.css;
+            // replace back to 0%
+            processedCss = processedCss.replace(/:1234%/g, ':0%')
             assets[assetName] = self.createCssAsset(processedCss, asset);
             var ratio = ''
             if (originalCss.length) {
