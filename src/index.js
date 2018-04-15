@@ -64,6 +64,8 @@ module.exports = function (source) {
   const BEFORE_TEMPLATE_COMPILER = utils.stringifyRequest(this, beforeTemplateCompilerLoader).replace(/"/g, '')
 
 
+  const variableMap = this.vuxVariableMap || utils.getLoaderConfig(this, 'vuxVariableMap')
+
   var query = this.query ? utils.parseQuery(this.query) : {}
   this.cacheable()
   if (!source) return source
@@ -81,6 +83,14 @@ module.exports = function (source) {
     const themePath = path.join(config.options.projectRoot, themes[0].path)
     this.addDependency(themePath)
     variables = getLessVariables(themes[0].path)
+    for (let i in variables) {
+      if (variableMap[i]) {
+        variables[variableMap[i]] = variables[i]
+        if (i !== variableMap[i]) {
+          delete variables[i]
+        }
+      }
+    }
   }
 
   source = addScriptLoader(source, SCRIPT)
@@ -329,6 +339,37 @@ module.exports.merge = function (oldConfig, vuxConfig) {
     } else {
       config = merge(config, {
         vuxMaps: maps
+      })
+    }
+  }
+
+  // get less variable alias
+  if (hasPlugin('vux-ui', vuxConfig.plugins)) {
+    let variablePath = path.resolve(vuxConfig.options.projectRoot, 'node_modules/vux/src/styles/variable.less')
+    if (vuxConfig.options.vuxDev) {
+      variablePath = path.resolve(vuxConfig.options.projectRoot, 'src/styles/variable.less')
+    }
+    // parse alias
+
+    const rs = {}
+
+    try {
+      const content = fs.readFileSync(variablePath, 'utf-8').split('\n').filter(line => /\/\/\salias/.test(line)).map(line => {
+        const value = line.split('// alias ')[1].replace(/\s+/g, '').trim()
+        const key = line.split('// alias ')[0].replace(/\s+/g, '').trim().split(':')[0].replace(/^@/, '')
+        return [key, value]
+      }).forEach(one => {
+        rs[one[0]] = one[1]
+      })
+    } catch (e) {}
+
+    if (isWebpack2) {
+      config.plugins.push(new webpack.LoaderOptionsPlugin({
+        vuxVariableMap: rs
+      }))
+    } else {
+      config = merge(config, {
+        vuxVariableMap: rs
       })
     }
   }
