@@ -286,7 +286,7 @@ module.exports.merge = function (oldConfig, vuxConfig) {
   config.module[loaderKey] = config.module[loaderKey] || []
 
   const useVuxUI = hasPlugin('vux-ui', vuxConfig.plugins)
-  vuxConfig.options.useVuxUI = true
+  vuxConfig.options.useVuxUI = useVuxUI
 
   /**
    * ======== set vux options ========
