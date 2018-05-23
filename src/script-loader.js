@@ -4,6 +4,7 @@ const utils = require('loader-utils')
 const fs = require('fs')
 const i18nReplaceForScript = require('../libs/replace-i18n-for-script').replace
 const getI18nBlockWithLocale = require('../libs/get-i18n-block').getWithLocale
+const path = require('path')
 
 module.exports = function (source) {
   this.cacheable()
@@ -56,12 +57,12 @@ module.exports = function (source) {
             }
 
             if (/demos/.test(_this.resourcePath)) {
-              const splits = _this.resourcePath.split('demos')[1].split('/').length - 1
+              const splits = _this.resourcePath.split('demos')[1].split(path.sep).length - 1
               let dir = []
               for (let i = 0; i < splits; i++) {
                 dir.push('..')
               }
-              relative = dir.join('/')
+              relative = dir.join(path.sep)
             }
 
             if (config.options.resolveVuxDir) {
