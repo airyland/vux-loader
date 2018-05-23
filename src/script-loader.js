@@ -62,7 +62,7 @@ module.exports = function (source) {
               for (let i = 0; i < splits; i++) {
                 dir.push('..')
               }
-              relative = dir.join(path.sep)
+              relative = dir.join('/')
             }
 
             if (config.options.resolveVuxDir) {
