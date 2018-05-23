@@ -55,6 +55,19 @@ module.exports = function (source) {
               relative = '../..'
             }
 
+            if (/demos/.test(_this.resourcePath)) {
+              const splits = _this.resourcePath.split('demos')[1].split('/').length - 1
+              let dir = []
+              for (let i = 0; i < splits; i++) {
+                dir.push('..')
+              }
+              relative = dir.join('/')
+            }
+
+            if (config.options.resolveVuxDir) {
+              relative = config.options.resolveVuxDir
+            }
+
             file = file.replace(/vux\/src/g, relative)
           }
         }

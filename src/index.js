@@ -511,7 +511,7 @@ module.exports.merge = function (oldConfig, vuxConfig) {
    */
   if (hasPlugin('vux-ui', vuxConfig.plugins)) {
     if (typeof vuxConfig.options.vuxSetBabel === 'undefined' || vuxConfig.options.vuxSetBabel === true) {
-      config.module[loaderKey].push(getBabelLoader(vuxConfig.options.projectRoot))
+      config.module[loaderKey].push(getBabelLoader(vuxConfig.options.projectRoot, 'vux', vuxConfig.options.vuxDev))
     }
   }
 
@@ -749,7 +749,7 @@ function addStyleLoader(source, STYLE, variables, AFTER_LESS_STYLE) {
 /**
  * use babel so component's js can be compiled
  */
-function getBabelLoader(projectRoot, name) {
+function getBabelLoader(projectRoot, name, isDev) {
   name = name || 'vux'
   if (!projectRoot) {
     projectRoot = path.resolve(__dirname, '../../../')
@@ -758,8 +758,16 @@ function getBabelLoader(projectRoot, name) {
     }
   }
 
-  const componentPath = fs.realpathSync(projectRoot + `/node_modules/${name}/`) // https://github.com/webpack/webpack/issues/1643
-  const regex = new RegExp(`node_modules.*${name}.src.*?js$`)
+  let componentPath
+  let regex
+  if (!isDev) {
+    componentPath = fs.realpathSync(projectRoot + `/node_modules/${name}/`) // https://github.com/webpack/webpack/issues/1643
+    regex = new RegExp(`node_modules.*${name}.src.*?js$`)
+  } else {
+    componentPath = projectRoot
+    regex = new RegExp(`${projectRoot}.src.*?js$`)
+  }
+
   return {
     test: regex,
     loader: 'babel-loader',

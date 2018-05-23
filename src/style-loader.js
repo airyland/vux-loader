@@ -24,7 +24,13 @@ module.exports = function (source) {
     if (/App\.vue$/.test(this.resourcePath)) {
       source = source.replace(/~vux\/src/g, '.')
     } else {
-      source = source.replace(/~vux\/src/g, '..')
+      if (config.options.resolveVuxDir) {
+        // if (_this.resourcePath.includes('pages') && _this.resourcePath.includes('IconLoading') )
+        // source = source.replace(/~vux\/src/g, config.options.resolveVuxDir).replace('//', '/')
+        // if (_this.resourcePath.includes('pages') && _this.resourcePath.includes('IconLoading') )
+      } else {
+        source = source.replace(/~vux\/src/g, '..')
+      }
     }
   }
 

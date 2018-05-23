@@ -17,7 +17,11 @@ module.exports = function (source) {
       opts.components.forEach(function (component) {
         let file = `vux/${maps[component.originalName]}`
         if (vuxConfig.options.vuxDev) {
-          file = file.replace('vux/src/', './')
+          if (vuxConfig.options.resolveVuxDir) {
+            file = file.replace('vux/src/', vuxConfig.options.resolveVuxDir)
+          } else {
+            file = file.replace('vux/src/', './')
+          }
         }
         str += `import ${component.newName} from '${file}'\n`
       })
