@@ -64,12 +64,12 @@ module.exports = function (source) {
   const BEFORE_TEMPLATE_COMPILER = utils.stringifyRequest(this, beforeTemplateCompilerLoader).replace(/"/g, '')
 
 
-  const variableMap = this.vuxVariableMap || utils.getLoaderConfig(this, 'vuxVariableMap')
+  const variableMap = this.k12vuxVariableMap || utils.getLoaderConfig(this, 'k12vuxVariableMap')
 
   var query = this.query ? utils.parseQuery(this.query) : {}
   this.cacheable()
   if (!source) return source
-  const config = this.vux || utils.getLoaderConfig(this, 'vux')
+  const config = this.k12vux || utils.getLoaderConfig(this, 'k12vux')
   if (!config) {
     return source
   }
@@ -98,8 +98,8 @@ module.exports = function (source) {
   source = addTemplateLoader(source, TEMPLATE, BEFORE_TEMPLATE_COMPILER)
 
   // fix style path in dev mode
-  if (config.options.vuxDev) {
-    source = source.replace(/vux\/src\/styles\/(.*?)/g, '../styles/$1')
+  if (config.options.k12vuxDev) {
+    source = source.replace(/k12vux\/src\/styles\/(.*?)/g, '../styles/$1')
   }
 
   return source
@@ -119,8 +119,8 @@ function getFirstPlugin(name, list) {
   return match[0]
 }
 
-// merge vux options and return new webpack config
-module.exports.merge = function (oldConfig, vuxConfig) {
+// merge k12vux options and return new webpack config
+module.exports.merge = function (oldConfig, k12vuxConfig) {
 
   oldConfig = Object.assign({
     plugins: []
@@ -131,24 +131,24 @@ module.exports.merge = function (oldConfig, vuxConfig) {
     plugins: []
   }, oldConfig)
 
-  if (!vuxConfig) {
-    vuxConfig = {
+  if (!k12vuxConfig) {
+    k12vuxConfig = {
       options: {},
       plugins: []
     }
   }
 
-  if (!vuxConfig.options) {
-    vuxConfig.options = {
+  if (!k12vuxConfig.options) {
+    k12vuxConfig.options = {
       buildEnvs: ['production']
     }
   }
 
-  if (typeof vuxConfig.options.ssr === 'undefined') {
-    vuxConfig.options.ssr = false
+  if (typeof k12vuxConfig.options.ssr === 'undefined') {
+    k12vuxConfig.options.ssr = false
   }
 
-  const buildEnvs = vuxConfig.options.buildEnvs || ['production']
+  const buildEnvs = k12vuxConfig.options.buildEnvs || ['production']
   if (buildEnvs.indexOf(process.env.NODE_ENV) !== -1) {
     process.env.__VUX_BUILD__ = true
   } else {
@@ -156,12 +156,12 @@ module.exports.merge = function (oldConfig, vuxConfig) {
   }
 
 
-  if (!vuxConfig.plugins) {
-    vuxConfig.plugins = []
+  if (!k12vuxConfig.plugins) {
+    k12vuxConfig.plugins = []
   }
 
-  if (vuxConfig.plugins.length) {
-    vuxConfig.plugins = vuxConfig.plugins.map(function (plugin) {
+  if (k12vuxConfig.plugins.length) {
+    k12vuxConfig.plugins = k12vuxConfig.plugins.map(function (plugin) {
       if (typeof plugin === 'string') {
         return {
           name: plugin
@@ -171,10 +171,10 @@ module.exports.merge = function (oldConfig, vuxConfig) {
     })
   }
 
-  vuxConfig.allPlugins = vuxConfig.allPlugins || []
+  k12vuxConfig.allPlugins = k12vuxConfig.allPlugins || []
 
   // check multi plugin instance
-  const pluginGroup = _.groupBy(vuxConfig.plugins, function (plugin) {
+  const pluginGroup = _.groupBy(k12vuxConfig.plugins, function (plugin) {
     return plugin.name
   })
   for (let group in pluginGroup) {
@@ -183,20 +183,20 @@ module.exports.merge = function (oldConfig, vuxConfig) {
     }
   }
 
-  // if exists old vux config, merge options and plugins list
-  let oldVuxConfig = oldConfig.vux || null
+  // if exists old k12vux config, merge options and plugins list
+  let oldVuxConfig = oldConfig.k12vux || null
 
   oldConfig.plugins.forEach(function (plugin) {
-    if (plugin.constructor.name === 'LoaderOptionsPlugin' && plugin.options.vux) {
-      oldVuxConfig = plugin.options.vux
+    if (plugin.constructor.name === 'LoaderOptionsPlugin' && plugin.options.k12vux) {
+      oldVuxConfig = plugin.options.k12vux
     }
   })
 
   if (oldVuxConfig) {
     // merge old options
-    vuxConfig.options = Object.assign(oldVuxConfig.options, vuxConfig.options)
+    k12vuxConfig.options = Object.assign(oldVuxConfig.options, k12vuxConfig.options)
       // merge old plugins list
-    vuxConfig.plugins.forEach(function (newPlugin) {
+    k12vuxConfig.plugins.forEach(function (newPlugin) {
       let isSame = false
       oldVuxConfig.allPlugins.forEach(function (oldPlugin, index) {
         if (newPlugin.name === oldPlugin.name) {
@@ -209,47 +209,47 @@ module.exports.merge = function (oldConfig, vuxConfig) {
         oldVuxConfig.allPlugins.push(newPlugin)
       }
     })
-    vuxConfig.allPlugins = oldVuxConfig.allPlugins
+    k12vuxConfig.allPlugins = oldVuxConfig.allPlugins
   } else {
-    vuxConfig.allPlugins = vuxConfig.plugins
+    k12vuxConfig.allPlugins = k12vuxConfig.plugins
   }
 
   // filter plugins by env
-  if (vuxConfig.options.env && vuxConfig.allPlugins.length) {
-    vuxConfig.plugins = vuxConfig.allPlugins.filter(function (plugin) {
-      return typeof plugin.envs === 'undefined' || (typeof plugin.envs === 'object' && plugin.envs.length && plugin.envs.indexOf(vuxConfig.options.env) > -1)
+  if (k12vuxConfig.options.env && k12vuxConfig.allPlugins.length) {
+    k12vuxConfig.plugins = k12vuxConfig.allPlugins.filter(function (plugin) {
+      return typeof plugin.envs === 'undefined' || (typeof plugin.envs === 'object' && plugin.envs.length && plugin.envs.indexOf(k12vuxConfig.options.env) > -1)
     })
   }
 
-  if (!vuxConfig.options.projectRoot) {
-    vuxConfig.options.projectRoot = projectRoot
+  if (!k12vuxConfig.options.projectRoot) {
+    k12vuxConfig.options.projectRoot = projectRoot
   }
 
-  let vuxVersion
+  let k12vuxVersion
   try {
-    let vuePackagePath = path.resolve(vuxConfig.options.projectRoot, 'node_modules/vux/package.json')
-    vuxVersion = require(vuePackagePath).version
+    let vuePackagePath = path.resolve(k12vuxConfig.options.projectRoot, 'node_modules/k12vux/package.json')
+    k12vuxVersion = require(vuePackagePath).version
   } catch (e) {}
 
   // get vue version
   let vueVersion
   try {
-    let vuePackagePath = path.resolve(vuxConfig.options.projectRoot, 'node_modules/vue/package.json')
+    let vuePackagePath = path.resolve(k12vuxConfig.options.projectRoot, 'node_modules/vue/package.json')
     vueVersion = require(vuePackagePath).version
   } catch (e) {}
-  vuxConfig.options.vueVersion = vueVersion
+  k12vuxConfig.options.vueVersion = vueVersion
 
   require('./libs/report')({
     vueVersion: vueVersion,
-    vuxVersion: vuxVersion
+    k12vuxVersion: k12vuxVersion
   })
 
 
   // check webpack version by module.loaders
   let isWebpack2
 
-  if (typeof vuxConfig.options.isWebpack2 !== 'undefined') {
-    isWebpack2 = vuxConfig.options.isWebpack2
+  if (typeof k12vuxConfig.options.isWebpack2 !== 'undefined') {
+    isWebpack2 = k12vuxConfig.options.isWebpack2
   } else if (oldConfig.module && oldConfig.module.rules) {
     isWebpack2 = true
   } else if (oldConfig.module && oldConfig.module.loaders) {
@@ -258,7 +258,7 @@ module.exports.merge = function (oldConfig, vuxConfig) {
 
   if (typeof isWebpack2 === 'undefined') {
     const compareVersions = require('compare-versions')
-    const pkg = require(path.resolve(vuxConfig.options.projectRoot, 'package.json'))
+    const pkg = require(path.resolve(k12vuxConfig.options.projectRoot, 'package.json'))
     if (pkg.devDependencies.webpack) {
       isWebpack2 = compareVersions(pkg.devDependencies.webpack.replace('^', '').replace('~', ''), '2.0.0') > -1
     } else {
@@ -270,14 +270,14 @@ module.exports.merge = function (oldConfig, vuxConfig) {
     if (!config.vue) {
       config.vue = {
         loaders: {
-          i18n: 'vux-loader/src/noop-loader.js'
+          i18n: 'k12vux-loader/src/noop-loader.js'
         }
       }
     } else {
       if (!config.vue.loaders) {
         config.vue.loaders = {}
       }
-      config.vue.loaders.i18n = 'vux-loader/src/noop-loader.js'
+      config.vue.loaders.i18n = 'k12vux-loader/src/noop-loader.js'
     }
   }
 
@@ -285,11 +285,11 @@ module.exports.merge = function (oldConfig, vuxConfig) {
 
   config.module[loaderKey] = config.module[loaderKey] || []
 
-  const useVuxUI = hasPlugin('vux-ui', vuxConfig.plugins)
-  vuxConfig.options.useVuxUI = true
+  const useVuxUI = hasPlugin('k12vux-ui', k12vuxConfig.plugins)
+  k12vuxConfig.options.useVuxUI = true
 
   /**
-   * ======== set vux options ========
+   * ======== set k12vux options ========
    */
   // for webpack@2.x, options should be provided with LoaderOptionsPlugin
   if (isWebpack2) {
@@ -298,56 +298,56 @@ module.exports.merge = function (oldConfig, vuxConfig) {
     }
     // delete old config for webpack2
     config.plugins.forEach(function (plugin, index) {
-      if (plugin.constructor.name === 'LoaderOptionsPlugin' && plugin.options.vux) {
+      if (plugin.constructor.name === 'LoaderOptionsPlugin' && plugin.options.k12vux) {
         config.plugins.splice(index, 1)
       }
     })
     config.plugins.push(new webpack.LoaderOptionsPlugin({
-      vux: vuxConfig
+      k12vux: k12vuxConfig
     }))
   } else { // for webpack@1.x, merge directly
 
     config = merge(config, {
-      vux: vuxConfig
+      k12vux: k12vuxConfig
     })
 
   }
 
-  if (hasPlugin('inline-manifest', vuxConfig.plugins)) {
+  if (hasPlugin('inline-manifest', k12vuxConfig.plugins)) {
     var InlineManifestWebpackPlugin = require('inline-manifest-webpack-plugin')
     config.plugins.push(new InlineManifestWebpackPlugin({
       name: 'webpackManifest'
     }))
   }
 
-  if (hasPlugin('progress-bar', vuxConfig.plugins)) {
+  if (hasPlugin('progress-bar', k12vuxConfig.plugins)) {
     const ProgressBarPlugin = require('progress-bar-webpack-plugin')
-    const pluginConfig = getFirstPlugin('progress-bar', vuxConfig.plugins)
+    const pluginConfig = getFirstPlugin('progress-bar', k12vuxConfig.plugins)
     config.plugins.push(new ProgressBarPlugin(pluginConfig.options || {}))
   }
 
-  if (hasPlugin('vux-ui', vuxConfig.plugins)) {
-    let mapPath = path.resolve(vuxConfig.options.projectRoot, 'node_modules/vux/src/components/map.json')
-    if (vuxConfig.options.vuxDev) {
-      mapPath = path.resolve(vuxConfig.options.projectRoot, 'src/components/map.json')
+  if (hasPlugin('k12vux-ui', k12vuxConfig.plugins)) {
+    let mapPath = path.resolve(k12vuxConfig.options.projectRoot, 'node_modules/k12vux/src/components/map.json')
+    if (k12vuxConfig.options.k12vuxDev) {
+      mapPath = path.resolve(k12vuxConfig.options.projectRoot, 'src/components/map.json')
     }
     const maps = require(mapPath)
     if (isWebpack2) {
       config.plugins.push(new webpack.LoaderOptionsPlugin({
-        vuxMaps: maps
+        k12vuxMaps: maps
       }))
     } else {
       config = merge(config, {
-        vuxMaps: maps
+        k12vuxMaps: maps
       })
     }
   }
 
   // get less variable alias
-  if (hasPlugin('vux-ui', vuxConfig.plugins)) {
-    let variablePath = path.resolve(vuxConfig.options.projectRoot, 'node_modules/vux/src/styles/variable.less')
-    if (vuxConfig.options.vuxDev) {
-      variablePath = path.resolve(vuxConfig.options.projectRoot, 'src/styles/variable.less')
+  if (hasPlugin('k12vux-ui', k12vuxConfig.plugins)) {
+    let variablePath = path.resolve(k12vuxConfig.options.projectRoot, 'node_modules/k12vux/src/styles/variable.less')
+    if (k12vuxConfig.options.k12vuxDev) {
+      variablePath = path.resolve(k12vuxConfig.options.projectRoot, 'src/styles/variable.less')
     }
     // parse alias
 
@@ -365,44 +365,44 @@ module.exports.merge = function (oldConfig, vuxConfig) {
 
     if (isWebpack2) {
       config.plugins.push(new webpack.LoaderOptionsPlugin({
-        vuxVariableMap: rs
+        k12vuxVariableMap: rs
       }))
     } else {
       config = merge(config, {
-        vuxVariableMap: rs
+        k12vuxVariableMap: rs
       })
     }
   }
 
   /**
-   * ======== read vux locales and set globally ========
+   * ======== read k12vux locales and set globally ========
    */
-  if (hasPlugin('vux-ui', vuxConfig.plugins)) {
-    let vuxLocalesPath = path.resolve(vuxConfig.options.projectRoot, 'node_modules/vux/src/locales/all.yml')
-    if (vuxConfig.options.vuxDev) {
-      vuxLocalesPath = path.resolve(vuxConfig.options.projectRoot, 'src/locales/all.yml')
+  if (hasPlugin('k12vux-ui', k12vuxConfig.plugins)) {
+    let k12vuxLocalesPath = path.resolve(k12vuxConfig.options.projectRoot, 'node_modules/k12vux/src/locales/all.yml')
+    if (k12vuxConfig.options.k12vuxDev) {
+      k12vuxLocalesPath = path.resolve(k12vuxConfig.options.projectRoot, 'src/locales/all.yml')
     }
     try {
-      const vuxLocalesContent = fs.readFileSync(vuxLocalesPath, 'utf-8')
-      let vuxLocalesJson = yaml.safeLoad(vuxLocalesContent)
+      const k12vuxLocalesContent = fs.readFileSync(k12vuxLocalesPath, 'utf-8')
+      let k12vuxLocalesJson = yaml.safeLoad(k12vuxLocalesContent)
 
       if (isWebpack2) {
         config.plugins.push(new webpack.LoaderOptionsPlugin({
-          vuxLocales: vuxLocalesJson
+          k12vuxLocales: k12vuxLocalesJson
         }))
       } else {
         config = merge(config, {
-          vuxLocales: vuxLocalesJson
+          k12vuxLocales: k12vuxLocalesJson
         })
       }
     } catch (e) {}
   }
 
   /**
-   * ======== append vux-loader ========
+   * ======== append k12vux-loader ========
    */
-  let loaderString = vuxConfig.options.loaderString || 'vux-loader!vue-loader'
-  const rewriteConfig = vuxConfig.options.rewriteLoaderString
+  let loaderString = k12vuxConfig.options.loaderString || 'k12vux-loader!vue-loader'
+  const rewriteConfig = k12vuxConfig.options.rewriteLoaderString
   if (typeof rewriteConfig === 'undefined' || rewriteConfig === true) {
     let hasAppendVuxLoader = false
     config.module[loaderKey].forEach(function (rule) {
@@ -418,7 +418,7 @@ module.exports.merge = function (oldConfig, vuxConfig) {
         } else if (isWebpack2 && (rule.options || rule.query) && !hasVueLoader) {
           delete rule.loader
           rule.use = [
-         'vux-loader',
+         'k12vux-loader',
             {
               loader: 'vue-loader',
               options: rule.options,
@@ -428,11 +428,11 @@ module.exports.merge = function (oldConfig, vuxConfig) {
           delete rule.query
         } else if (isWebpack2 && hasVueLoader) {
           if (Array.isArray(rule.use)) {
-            rule.use.unshift('vux-loader')
+            rule.use.unshift('k12vux-loader')
           } else if (typeof rule.use === 'object' && rule.use.loader === 'vue-loader') {
             let oldRule = rule.use
             rule.use = [
-              'vux-loader',
+              'k12vux-loader',
               oldRule
             ]
           }
@@ -507,17 +507,17 @@ module.exports.merge = function (oldConfig, vuxConfig) {
   })
 
   /**
-   * ======== set compiling vux js source ========
+   * ======== set compiling k12vux js source ========
    */
-  if (hasPlugin('vux-ui', vuxConfig.plugins)) {
-    if (typeof vuxConfig.options.vuxSetBabel === 'undefined' || vuxConfig.options.vuxSetBabel === true) {
-      config.module[loaderKey].push(getBabelLoader(vuxConfig.options.projectRoot, 'vux', vuxConfig.options.vuxDev))
+  if (hasPlugin('k12vux-ui', k12vuxConfig.plugins)) {
+    if (typeof k12vuxConfig.options.k12vuxSetBabel === 'undefined' || k12vuxConfig.options.k12vuxSetBabel === true) {
+      config.module[loaderKey].push(getBabelLoader(k12vuxConfig.options.projectRoot, 'k12vux', k12vuxConfig.options.k12vuxDev))
     }
   }
 
   // set done plugin
-  if (hasPlugin('build-done-callback', vuxConfig.plugins)) {
-    const callbacks = vuxConfig.plugins.filter(function (one) {
+  if (hasPlugin('build-done-callback', k12vuxConfig.plugins)) {
+    const callbacks = k12vuxConfig.plugins.filter(function (one) {
       return one.name === 'build-done-callback'
     }).map(function (one) {
       return one.fn
@@ -533,15 +533,15 @@ module.exports.merge = function (oldConfig, vuxConfig) {
   }]))
 
   // duplicate styles
-  if (hasPlugin('duplicate-style', vuxConfig.plugins)) {
-    let plugin = getFirstPlugin('duplicate-style', vuxConfig.plugins)
+  if (hasPlugin('duplicate-style', k12vuxConfig.plugins)) {
+    let plugin = getFirstPlugin('duplicate-style', k12vuxConfig.plugins)
     let options = plugin.options || {}
     config.plugins.push(new DuplicateStyle(options))
   }
 
-  if (hasPlugin('build-emit-callback', vuxConfig.plugins)) {
+  if (hasPlugin('build-emit-callback', k12vuxConfig.plugins)) {
     config.plugins = config.plugins || []
-    const callbacks = vuxConfig.plugins.filter(function (one) {
+    const callbacks = k12vuxConfig.plugins.filter(function (one) {
       return one.name === 'build-emit-callback'
     }).map(function (one) {
       return one.fn
@@ -551,8 +551,8 @@ module.exports.merge = function (oldConfig, vuxConfig) {
     }
   }
 
-  if (hasPlugin('html-build-callback', vuxConfig.plugins)) {
-    let pluginConfig = getFirstPlugin('html-build-callback', vuxConfig.plugins)
+  if (hasPlugin('html-build-callback', k12vuxConfig.plugins)) {
+    let pluginConfig = getFirstPlugin('html-build-callback', k12vuxConfig.plugins)
     config.plugins.push(new htmlBuildCallbackPlugin(pluginConfig))
   }
 
@@ -560,11 +560,11 @@ module.exports.merge = function (oldConfig, vuxConfig) {
    *======== global variable V_LOCALE ========
    */
   let locale = ''
-  if (hasPlugin('i18n', vuxConfig.plugins)) {
-    const config = getFirstPlugin('i18n', vuxConfig.plugins)
-    if (config.vuxStaticReplace && config.vuxLocale) {
-      locale = config.vuxLocale
-    } else if (config.vuxStaticReplace === false) {
+  if (hasPlugin('i18n', k12vuxConfig.plugins)) {
+    const config = getFirstPlugin('i18n', k12vuxConfig.plugins)
+    if (config.k12vuxStaticReplace && config.k12vuxLocale) {
+      locale = config.k12vuxLocale
+    } else if (config.k12vuxStaticReplace === false) {
       locale = 'MULTI'
     }
   } else {
@@ -575,7 +575,7 @@ module.exports.merge = function (oldConfig, vuxConfig) {
   *======== global variable V_SSR ========
   */
   let ssr = false
-  if (vuxConfig.options.ssr) {
+  if (k12vuxConfig.options.ssr) {
     ssr = true
   }
 
@@ -750,7 +750,7 @@ function addStyleLoader(source, STYLE, variables, AFTER_LESS_STYLE) {
  * use babel so component's js can be compiled
  */
 function getBabelLoader(projectRoot, name, isDev) {
-  name = name || 'vux'
+  name = name || 'k12vux'
   if (!projectRoot) {
     projectRoot = path.resolve(__dirname, '../../../')
     if (/\.npm/.test(projectRoot)) {

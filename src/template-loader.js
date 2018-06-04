@@ -24,17 +24,17 @@ module.exports = function (source) {
   const _this = this
   this.cacheable()
   const query = this.query ? utils.parseQuery(this.query) : {}
-  const config = this.vux || utils.getLoaderConfig(this, 'vux')
+  const config = this.k12vux || utils.getLoaderConfig(this, 'k12vux')
   if (!config.plugins || !config.plugins.length) {
     return source
   }
   const basename = path.basename(this.resourcePath)
-  let isVuxVueFile = this.resourcePath.replace(/\\/g, '/').indexOf('vux/src/components') > -1
-  let isVuxVueDemo = this.resourcePath.replace(/\\/g, '/').indexOf('vux/src/demos') > -1
-  if (config.options.vuxDev && this.resourcePath.replace(/\\/g, '/').indexOf('src/components') > -1) {
+  let isVuxVueFile = this.resourcePath.replace(/\\/g, '/').indexOf('k12vux/src/components') > -1
+  let isVuxVueDemo = this.resourcePath.replace(/\\/g, '/').indexOf('k12vux/src/demos') > -1
+  if (config.options.k12vuxDev && this.resourcePath.replace(/\\/g, '/').indexOf('src/components') > -1) {
     isVuxVueFile = true
   }
-  if (config.options.vuxDev && this.resourcePath.replace(/\\/g, '/').indexOf('src/demos') > -1) {
+  if (config.options.k12vuxDev && this.resourcePath.replace(/\\/g, '/').indexOf('src/demos') > -1) {
     isVuxVueDemo = true
   }
 
@@ -52,14 +52,14 @@ module.exports = function (source) {
     source = reserveTagCode(source, 'v-no-ssr')
   }
 
-  const locales = this.vuxLocales || utils.getLoaderConfig(this, 'vuxLocales')
+  const locales = this.k12vuxLocales || utils.getLoaderConfig(this, 'k12vuxLocales')
 
   /**
    * ======== i18n ========
    */
   let dynamic = false
   let locale = 'zh-CN'
-  let vuxFunctionName = '$t'
+  let k12vuxFunctionName = '$t'
   let functionName = '$t'
   let staticTranslations = {}
   let langs = ['en', 'zh-CN']
@@ -71,9 +71,9 @@ module.exports = function (source) {
   })
 
   if (i18nPluginsMatch.length) {
-    dynamic = !i18nPluginsMatch[0].vuxStaticReplace
-    locale = i18nPluginsMatch[0].vuxLocale || 'zh-CN'
-    vuxFunctionName = i18nPluginsMatch[0].vuxFunctionName || '$t'
+    dynamic = !i18nPluginsMatch[0].k12vuxStaticReplace
+    locale = i18nPluginsMatch[0].k12vuxLocale || 'zh-CN'
+    k12vuxFunctionName = i18nPluginsMatch[0].k12vuxFunctionName || '$t'
     functionName = i18nPluginsMatch[0].functionName || '$t'
     langs = i18nPluginsMatch[0].localeList || langs
     staticTranslations = i18nPluginsMatch[0].staticTranslations || {}
@@ -81,7 +81,7 @@ module.exports = function (source) {
   } else {
     dynamic = false
     locale = 'zh-CN'
-    vuxFunctionName = '$t'
+    k12vuxFunctionName = '$t'
   }
 
   // 对于小于 vue@2.5.0 的版本，将 slot-scope 替换为 scope
@@ -96,7 +96,7 @@ module.exports = function (source) {
     const name = getName(this.resourcePath)
     if (!dynamic) {
       source = source.replace(matchI18nReg, function (a, b) {
-        let key = `vux.${name}.${b}`
+        let key = `k12vux.${name}.${b}`
 
         if (a.indexOf('/*') > -1) {
           const start = a.indexOf('/*')
@@ -119,12 +119,12 @@ module.exports = function (source) {
         }
       })
     } else {
-      // dynamic 为 true, 则对于 vux 源码，把 key 加上 prefix
+      // dynamic 为 true, 则对于 k12vux 源码，把 key 加上 prefix
       source = source.replace(matchI18nReg, function (a, b) {
         if (a.indexOf("'") > -1) {
-          return a.replace(b, `vux.${name}.${b}`).replace('$t', vuxFunctionName)
+          return a.replace(b, `k12vux.${name}.${b}`).replace('$t', k12vuxFunctionName)
         } else {
-          return a.replace('$t', vuxFunctionName)
+          return a.replace('$t', k12vuxFunctionName)
         }
       })
     }
@@ -167,7 +167,7 @@ module.exports = function (source) {
       }
     }
 
-    // 非 vux 组件才需要生成语言
+    // 非 k12vux 组件才需要生成语言
     if (!isVuxVueFile && plugin.name === 'i18n' && plugin.extractToFiles) {
 
       const savePath = path.resolve(config.options.projectRoot, plugin.extractToFiles)
@@ -307,8 +307,8 @@ module.exports = function (source) {
     }
   })
   
-  if (config.options.vuxWriteFile === true) {
-    fs.writeFileSync(this.resourcePath + '.vux.html', source)
+  if (config.options.k12vuxWriteFile === true) {
+    fs.writeFileSync(this.resourcePath + '.k12vux.html', source)
   }
   return source
 }

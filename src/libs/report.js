@@ -12,7 +12,7 @@ module.exports = function (options) {
     const platform = process.platform
     const https = require('https')
     const config = Config({
-      dir: '.vuxrc',
+      dir: '.k12vuxrc',
       file: 'config'
     })
     let user = config.get('uuid')
@@ -35,7 +35,7 @@ module.exports = function (options) {
 
     const report = function () {
       const data = {
-        vux_version: options.vuxVersion,
+        k12vux_version: options.k12vuxVersion,
         vue_version: options.vueVersion,
         version: version,
         platform: platform,
@@ -45,9 +45,9 @@ module.exports = function (options) {
       }
       const query = querystring.stringify(data)
       try {
-        const url = `/vux-loader-anonymous-tracking.html?${query}`
+        const url = `/k12vux-loader-anonymous-tracking.html?${query}`
         const res = https.get({
-          hostname: 'vux.li',
+          hostname: 'k12vux.li',
           path: url
         })
         res.on('error', function (err) {})

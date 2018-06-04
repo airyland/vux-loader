@@ -1,13 +1,13 @@
 {
-  "name": "vux-loader",
+  "name": "k12vux-loader",
   "version": "1.2.9",
   "description": "extended loader for vue-loader",
   "main": "src/index.js",
   "keywords": [
-    "vux",
+    "k12vux",
     "vue",
     "vue-loader",
-    "vux-loader",
+    "k12vux-loader",
     "webpack-loader",
     "weui",
     "vue-components",
@@ -18,10 +18,10 @@
     "framework",
     "frontend"
   ],
-  "author": "airyland <airyland@qq.com>",
+  "author": "bywwcnll <2233540467@qq.com>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/airyland/vux-loader"
+    "url": "https://github.com/bywwcnll/vux-loader"
   },
   "license": "MIT",
   "scripts": {

@@ -8,7 +8,7 @@ module.exports = function (source, config) {
   source = parseVirtualComponent(source, 'x-icon', function (query) {
     let size = query.objectList.size || 24
     let type = query.objectList.type
-    let svgPath = path.resolve(config.options.projectRoot, `node_modules/vux/src/icons/${type}.svg`)
+    let svgPath = path.resolve(config.options.projectRoot, `node_modules/k12vux/src/icons/${type}.svg`)
     if (config.options.vuxDev) {
       svgPath = path.resolve(config.options.projectRoot, `src/icons/${type}.svg`)
     }

@@ -55,7 +55,7 @@ function getContent (file) {
       if (!key) return;
       key = key.trim()
       if (!/^[A-Za-z0-9_-]*$/.test(key)) {
-        console.log(`[vux-loader] 疑似不合法命名，将被忽略：${key}`)
+        console.log(`[k12vux-loader] 疑似不合法命名，将被忽略：${key}`)
         return
       }
       var value = _pair[1].replace(';', '').replace('\r', '').replace(/^\s+|\s+$/g, '')

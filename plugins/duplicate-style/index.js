@@ -37,7 +37,7 @@ OptimizeCssAssetsPlugin.prototype.createCssAsset = function(css, originalAsset) 
 OptimizeCssAssetsPlugin.prototype.apply = function(compiler) {
   var self = this;
   compiler.plugin('emit', function(compilation, compileCallback) {
-    self.print('\n\n======== vux-loader: duplicate-style start~  ========')
+    self.print('\n\n======== k12vux-loader: duplicate-style start~  ========')
     self.print('Starting to optimize CSS...')
 
     var assets = compilation.assets;
@@ -88,7 +88,7 @@ OptimizeCssAssetsPlugin.prototype.apply = function(compiler) {
 
     Promise.all(promises).then(function () {
       compileCallback()
-      self.print('======== vux-loader: duplicate-style done!   ========\n')
+      self.print('======== k12vux-loader: duplicate-style done!   ========\n')
      }, compileCallback)
   })
 }

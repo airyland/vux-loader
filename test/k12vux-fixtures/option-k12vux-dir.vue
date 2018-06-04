@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import Group from '../../node_modules/vux/src/components/group/index.vue'
+import Group from '../../node_modules/k12vux/src/components/group/index.vue'
 
 export default {
   components: {

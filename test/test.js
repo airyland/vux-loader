@@ -12,7 +12,7 @@ var ExtractTextPlugin = require("extract-text-webpack-plugin")
 var compiler = require('vue-loader/lib/template-compiler')
 var normalizeNewline = require('normalize-newline')
 
-var vuxLoader = require('../src/index.js')
+var k12vuxLoader = require('../src/index.js')
 var i18nParser = require('../libs/parse-i18n-function').parse
 const i18nParserForScript = require('../libs/replace-i18n-for-script').replace
 const getI18nBlock = require('../libs/get-i18n-block').get
@@ -43,7 +43,7 @@ var globalConfig = {
   }
 }
 
-function bundle(options, vuxOptions, cb) {
+function bundle(options, k12vuxOptions, cb) {
   var vueOptions = options.vue
   delete options.vue
   var config = Object.assign(globalConfig, options)
@@ -63,17 +63,17 @@ function bundle(options, vuxOptions, cb) {
     }
   }
 
-  if (vuxOptions.options) {
-    for (let i in vuxOptions.options) {
-      basicVux.options[i] = vuxOptions.options[i]
+  if (k12vuxOptions.options) {
+    for (let i in k12vuxOptions.options) {
+      basicVux.options[i] = k12vuxOptions.options[i]
     }
   }
 
-  if (vuxOptions.plugins) {
-    basicVux.plugins = vuxOptions.plugins
+  if (k12vuxOptions.plugins) {
+    basicVux.plugins = k12vuxOptions.plugins
   }
 
-  config = vuxLoader.merge(config, basicVux)
+  config = k12vuxLoader.merge(config, basicVux)
 
   var webpackCompiler = webpack(config)
 
@@ -90,8 +90,8 @@ function bundle(options, vuxOptions, cb) {
   })
 }
 
-function test(options, vuxOptions, assert) {
-  bundle(options, vuxOptions, function (code) {
+function test(options, k12vuxOptions, assert) {
+  bundle(options, k12vuxOptions, function (code) {
     jsdom.env({
       html: '<!DOCTYPE html><html><head></head><body></body></html>',
       src: [code],
@@ -141,7 +141,7 @@ var parse = require('../src/libs/import-parser')
 const str = parse(`<script>
 import {
         Group
-    } from 'vux';
+    } from 'k12vux';
 
 `, function (opts) {
   // console.log(opts)
@@ -153,22 +153,22 @@ var commomMapper = function (opts) {
   components = opts.components.map(function (one) {
     return one.newName
   })
-  return `import { ${components.join(', ')} } from 'vux'`
+  return `import { ${components.join(', ')} } from 'k12vux'`
 }
 
-var vuxMapper = function (opts) {
+var k12vuxMapper = function (opts) {
   let str = ''
   opts.components.forEach(function (one) {
     if (one.originalName === 'AlertPlugin') {
-      str += `import ${one.newName} from 'vux/src/plugins/Alert'\n`
+      str += `import ${one.newName} from 'k12vux/src/plugins/Alert'\n`
     } else if (one.originalName === 'ToastPlugin') {
-      str += `import ${one.newName} from 'vux/src/plugins/Toast'\n`
+      str += `import ${one.newName} from 'k12vux/src/plugins/Toast'\n`
     }
   })
   return str
 }
 
-describe('vux-loader', function () {
+describe('k12vux-loader', function () {
 
   describe('get i18n block', function () {
 
@@ -368,12 +368,12 @@ b: 'C' + 'B' }"></div>`
 
   describe('lib:get theme variables', function () {
     it('basic', function () {
-      const rs = themeParse(path.resolve(__dirname, './vux-fixtures/less-theme-001.less'))
+      const rs = themeParse(path.resolve(__dirname, './k12vux-fixtures/less-theme-001.less'))
       expect(rs.a).to.equal('b')
     })
 
     it('ignore comments', function () {
-      const rs = themeParse(path.resolve(__dirname, './vux-fixtures/less-theme-002.less'))
+      const rs = themeParse(path.resolve(__dirname, './k12vux-fixtures/less-theme-002.less'))
       expect(rs.a).to.equal('b')
       expect(rs.c).to.equal('d')
       expect(rs.d).to.equal('e')
@@ -381,7 +381,7 @@ b: 'C' + 'B' }"></div>`
     })
 
     it('import files', function () {
-      const rs = themeParse(path.resolve(__dirname, './vux-fixtures/less-theme-import.less'))
+      const rs = themeParse(path.resolve(__dirname, './k12vux-fixtures/less-theme-import.less'))
       expect(rs.x).to.equal('x')
       expect(rs.y).to.equal('z')
     })
@@ -391,46 +391,46 @@ b: 'C' + 'B' }"></div>`
 
     let tests = [{
       title: 'basic',
-      string: `import {A,B} from 'vux'`,
+      string: `import {A,B} from 'k12vux'`,
       rs: ['A', 'B']
     }, {
       title: 'basic',
-      string: `import {A,B,} from 'vux'`,
+      string: `import {A,B,} from 'k12vux'`,
       rs: ['A', 'B']
     }, {
       title: 'without space',
-      string: `import{A,B} from 'vux'`,
+      string: `import{A,B} from 'k12vux'`,
       rs: ['A', 'B']
     }, {
       title: 'without space 2',
-      string: `import {A,B}from 'vux'`,
+      string: `import {A,B}from 'k12vux'`,
       rs: ['A', 'B']
     }, {
       title: 'without space 3',
-      string: `import{A,B}from 'vux'`,
+      string: `import{A,B}from 'k12vux'`,
       rs: ['A', 'B']
     }, {
       title: 'do not parse comments',
-      string: `// import {A,B} from 'vux'
-import { C, D} from 'vux'`,
-      rs: `\nimport { C, D } from 'vux'`
+      string: `// import {A,B} from 'k12vux'
+import { C, D} from 'k12vux'`,
+      rs: `\nimport { C, D } from 'k12vux'`
     }, {
       title: 'use as',
-      string: `import {A,B as C} from 'vux'`,
+      string: `import {A,B as C} from 'k12vux'`,
       rs: ['A', 'C']
     }, {
       title: 'double quote',
-      string: `import {A,B} from "vux"`,
+      string: `import {A,B} from "k12vux"`,
       rs: ['A', 'B']
     }, {
       title: 'multi line and single quote',
       string: `import { A,
-B } from 'vux'`,
+B } from 'k12vux'`,
       rs: ['A', 'B']
     }, {
       title: 'multi line and double quote',
       string: `import { A,
-B } from "vux"`,
+B } from "k12vux"`,
       rs: ['A', 'B']
     }, {
       title: 'no match',
@@ -441,48 +441,48 @@ B } from "vux"`,
       string: `import C from 'XY'
 import { D } from 'ZW'
 import {A,B} from 'vvv'
-import { C }  from 'vux'`,
+import { C }  from 'k12vux'`,
       rs: `import C from 'XY'
 import { D } from 'ZW'
 import {A,B} from 'vvv'
-import { C } from 'vux'`
+import { C } from 'k12vux'`
     }, {
-      title: 'vux test2',
-      string: `import {Group,Cell} from 'vux'
-import value2name from 'vux/src/filters/value2name'`,
-      rs: `import { Group, Cell } from 'vux'
-import value2name from 'vux/src/filters/value2name'`
+      title: 'k12vux test2',
+      string: `import {Group,Cell} from 'k12vux'
+import value2name from 'k12vux/src/filters/value2name'`,
+      rs: `import { Group, Cell } from 'k12vux'
+import value2name from 'k12vux/src/filters/value2name'`
 }, {
-      title: 'vux test3',
+      title: 'k12vux test3',
       string: `import {Group,
-Cell} from 'vux'
-import value2name from 'vux/src/filters/value2name'`,
-      rs: `import { Group, Cell } from 'vux'
-import value2name from 'vux/src/filters/value2name'`
+Cell} from 'k12vux'
+import value2name from 'k12vux/src/filters/value2name'`,
+      rs: `import { Group, Cell } from 'k12vux'
+import value2name from 'k12vux/src/filters/value2name'`
 }, {
-      title: 'vux test4',
-      string: `import { M1, M2 } from 'vux'
+      title: 'k12vux test4',
+      string: `import { M1, M2 } from 'k12vux'
 import { mapMutations, mapState } from 'vuex'
-import { Group, Cell } from 'vux'
-import { Group1, Cell1 } from 'vux'
-import value2name from 'vux/src/filters/value2name'`,
-      rs: `import { M1, M2 } from 'vux'
+import { Group, Cell } from 'k12vux'
+import { Group1, Cell1 } from 'k12vux'
+import value2name from 'k12vux/src/filters/value2name'`,
+      rs: `import { M1, M2 } from 'k12vux'
 import { mapMutations, mapState } from 'vuex'
-import { Group, Cell } from 'vux'
-import { Group1, Cell1 } from 'vux'
-import value2name from 'vux/src/filters/value2name'`
+import { Group, Cell } from 'k12vux'
+import { Group1, Cell1 } from 'k12vux'
+import value2name from 'k12vux/src/filters/value2name'`
 }, {
-      title: 'vux test5',
+      title: 'k12vux test5',
       string: `import {
 XX,
-YY} from 'vux'`,
-      rs: `import { XX, YY } from 'vux'`
+YY} from 'k12vux'`,
+      rs: `import { XX, YY } from 'k12vux'`
 }, {
-      title: 'vux test6',
+      title: 'k12vux test6',
       string: `/**/
-import {Divider } from 'vux'`,
+import {Divider } from 'k12vux'`,
       rs: `/**/
-import { Divider } from 'vux'`
+import { Divider } from 'k12vux'`
 }]
 
     tests.forEach(function (one) {
@@ -491,23 +491,23 @@ import { Divider } from 'vux'`
         if (typeof one.rs === 'string') {
           expect(rs).to.equal(one.rs)
         } else {
-          expect(rs).to.equal(`import { ${one.rs.join(', ')} } from 'vux'`)
+          expect(rs).to.equal(`import { ${one.rs.join(', ')} } from 'k12vux'`)
         }
       })
     })
 
-    it('vux test', function () {
-      const rs = parse(`import {AlertPlugin, ToastPlugin} from 'vux'`, vuxMapper)
-      expect(rs).to.equal(`import AlertPlugin from 'vux/src/plugins/Alert'
-import ToastPlugin from 'vux/src/plugins/Toast'
+    it('k12vux test', function () {
+      const rs = parse(`import {AlertPlugin, ToastPlugin} from 'k12vux'`, k12vuxMapper)
+      expect(rs).to.equal(`import AlertPlugin from 'k12vux/src/plugins/Alert'
+import ToastPlugin from 'k12vux/src/plugins/Toast'
 `)
     })
 
-    it('vux test7', function () {
-      const rs = parse(`import {AlertPlugin, ToastPlugin} from 'vux'
-// import { AlertPlugin } from 'vux'`, vuxMapper)
-      expect(rs).to.equal(`import AlertPlugin from 'vux/src/plugins/Alert'
-import ToastPlugin from 'vux/src/plugins/Toast'
+    it('k12vux test7', function () {
+      const rs = parse(`import {AlertPlugin, ToastPlugin} from 'k12vux'
+// import { AlertPlugin } from 'k12vux'`, k12vuxMapper)
+      expect(rs).to.equal(`import AlertPlugin from 'k12vux/src/plugins/Alert'
+import ToastPlugin from 'k12vux/src/plugins/Toast'
 
 `)
     })
@@ -516,18 +516,18 @@ import ToastPlugin from 'vux/src/plugins/Toast'
       const rs = parse(`import {
   AlertPlugin,
     ToastPlugin
-} from 'vux';`, vuxMapper)
-      expect(rs).to.equal(`import AlertPlugin from 'vux/src/plugins/Alert'
-import ToastPlugin from 'vux/src/plugins/Toast'
+} from 'k12vux';`, k12vuxMapper)
+      expect(rs).to.equal(`import AlertPlugin from 'k12vux/src/plugins/Alert'
+import ToastPlugin from 'k12vux/src/plugins/Toast'
 `)
     })
 
     it('issue #1579 (2)', function () {
       const rs = parse(`import {AlertPlugin,
     ToastPlugin
-} from 'vux'`, vuxMapper)
-      expect(rs).to.equal(`import AlertPlugin from 'vux/src/plugins/Alert'
-import ToastPlugin from 'vux/src/plugins/Toast'
+} from 'k12vux'`, k12vuxMapper)
+      expect(rs).to.equal(`import AlertPlugin from 'k12vux/src/plugins/Alert'
+import ToastPlugin from 'k12vux/src/plugins/Toast'
 `)
     })
 
@@ -537,11 +537,11 @@ import ToastPlugin from 'vux/src/plugins/Toast'
 
     it('basic', function (done) {
       test({
-        entry: './test/vux-fixtures/less-theme-basic.vue'
+        entry: './test/k12vux-fixtures/less-theme-basic.vue'
       }, {
         plugins: [{
           name: 'less-theme',
-          path: './test/vux-fixtures/less-theme-basic.less'
+          path: './test/k12vux-fixtures/less-theme-basic.less'
           }]
       }, function (window, module, rawModule) {
         var vnode = mockRender(module, {
@@ -562,11 +562,11 @@ import ToastPlugin from 'vux/src/plugins/Toast'
 
     it('basic', function (done) {
       test({
-        entry: './test/vux-fixtures/style-parser-basic.vue'
+        entry: './test/k12vux-fixtures/style-parser-basic.vue'
       }, {
         plugins: [{
           name: 'less-theme',
-          path: './test/vux-fixtures/less-theme-basic.less'
+          path: './test/k12vux-fixtures/less-theme-basic.less'
           }, {
           name: 'style-parser',
           fn: function (source) {
@@ -592,7 +592,7 @@ import ToastPlugin from 'vux/src/plugins/Toast'
 
     it('basic', function (done) {
       test({
-        entry: './test/vux-fixtures/template-feature-switch-basic.vue'
+        entry: './test/k12vux-fixtures/template-feature-switch-basic.vue'
       }, {
         plugins: [{
           name: 'template-feature-switch',
@@ -621,7 +621,7 @@ import ToastPlugin from 'vux/src/plugins/Toast'
         plugins: []
       }
       const merge = function () {
-        return vuxLoader.merge(webpackConfig, {
+        return k12vuxLoader.merge(webpackConfig, {
           options: {
             env: 'env1'
           },
@@ -641,50 +641,50 @@ import ToastPlugin from 'vux/src/plugins/Toast'
       const webpackConfig = {
         plugins: []
       }
-      const config1 = vuxLoader.merge(webpackConfig, {
+      const config1 = k12vuxLoader.merge(webpackConfig, {
         options: {
           env: 'env1'
         }
       })
 
-      expect(getOptionsPlugin(config1).options.vux.options.env).to.equal('env1')
+      expect(getOptionsPlugin(config1).options.k12vux.options.env).to.equal('env1')
 
-      const config2 = vuxLoader.merge(config1, {
+      const config2 = k12vuxLoader.merge(config1, {
         options: {
           env: 'env2'
         }
       })
 
-      expect(getOptionsPlugin(config2).options.vux.options.env).to.equal('env2')
+      expect(getOptionsPlugin(config2).options.k12vux.options.env).to.equal('env2')
     })
 
     it('should merge plugins with the same name', function () {
       const webpackConfig = {}
-      const config1 = vuxLoader.merge(webpackConfig, {
+      const config1 = k12vuxLoader.merge(webpackConfig, {
         plugins: [{
           name: 'test1',
           arg: 1
         }]
       })
 
-      expect(getOptionsPlugin(config1).options.vux.plugins.length).to.equal(1)
-      expect(getOptionsPlugin(config1).options.vux.plugins[0].arg).to.equal(1)
+      expect(getOptionsPlugin(config1).options.k12vux.plugins.length).to.equal(1)
+      expect(getOptionsPlugin(config1).options.k12vux.plugins[0].arg).to.equal(1)
 
-      const config2 = vuxLoader.merge(config1, {
+      const config2 = k12vuxLoader.merge(config1, {
         plugins: [{
           name: 'test1',
           arg: 2
         }]
       })
 
-      expect(getOptionsPlugin(config1).options.vux.plugins.length).to.equal(1)
-      expect(getOptionsPlugin(config1).options.vux.plugins[0].arg).to.equal(2)
+      expect(getOptionsPlugin(config1).options.k12vux.plugins.length).to.equal(1)
+      expect(getOptionsPlugin(config1).options.k12vux.plugins[0].arg).to.equal(2)
 
     })
 
     it('should delete plugin when env is change', function () {
       const webpackConfig = {}
-      const config1 = vuxLoader.merge(webpackConfig, {
+      const config1 = k12vuxLoader.merge(webpackConfig, {
         options: {
           env: 'env1'
         },
@@ -695,21 +695,21 @@ import ToastPlugin from 'vux/src/plugins/Toast'
         }]
       })
 
-      expect(config1.plugins[0].options.vux.plugins.length).to.equal(1)
+      expect(config1.plugins[0].options.k12vux.plugins.length).to.equal(1)
 
-      const config2 = vuxLoader.merge(config1, {
+      const config2 = k12vuxLoader.merge(config1, {
         options: {
           env: 'env2'
         }
       })
 
-      expect(getOptionsPlugin(config1).options.vux.plugins.length).to.equal(0)
+      expect(getOptionsPlugin(config1).options.k12vux.plugins.length).to.equal(0)
 
     })
 
     it('should merge plugins', function () {
       const webpackConfig = {}
-      const config1 = vuxLoader.merge(webpackConfig, {
+      const config1 = k12vuxLoader.merge(webpackConfig, {
         options: {
           env: 'env1'
         },
@@ -720,27 +720,27 @@ import ToastPlugin from 'vux/src/plugins/Toast'
         }]
       })
 
-      expect(getOptionsPlugin(config1).options.vux.allPlugins.length).to.equal(1)
-      expect(getOptionsPlugin(config1).options.vux.plugins.length).to.equal(1)
+      expect(getOptionsPlugin(config1).options.k12vux.allPlugins.length).to.equal(1)
+      expect(getOptionsPlugin(config1).options.k12vux.plugins.length).to.equal(1)
 
-      const config2 = vuxLoader.merge(config1, {
+      const config2 = k12vuxLoader.merge(config1, {
         plugins: [{
           name: 'test2'
         }]
       })
 
-      expect(getOptionsPlugin(config2).options.vux.allPlugins.length).to.equal(2)
-      expect(getOptionsPlugin(config2).options.vux.plugins.length).to.equal(2)
+      expect(getOptionsPlugin(config2).options.k12vux.allPlugins.length).to.equal(2)
+      expect(getOptionsPlugin(config2).options.k12vux.plugins.length).to.equal(2)
 
-      const config3 = vuxLoader.merge(config2, {
+      const config3 = k12vuxLoader.merge(config2, {
         plugins: [{
           name: 'test3',
           envs: ['env3']
         }]
       })
 
-      expect(getOptionsPlugin(config3).options.vux.allPlugins.length).to.equal(3)
-      expect(getOptionsPlugin(config3).options.vux.plugins.length).to.equal(2)
+      expect(getOptionsPlugin(config3).options.k12vux.allPlugins.length).to.equal(3)
+      expect(getOptionsPlugin(config3).options.k12vux.plugins.length).to.equal(2)
 
     })
   })
@@ -749,7 +749,7 @@ import ToastPlugin from 'vux/src/plugins/Toast'
 
     it('fn function should work', function (done) {
       test({
-        entry: './test/vux-fixtures/script-parser-fn.vue'
+        entry: './test/k12vux-fixtures/script-parser-fn.vue'
       }, {
         plugins: [{
           name: 'script-parser',
@@ -769,7 +769,7 @@ import ToastPlugin from 'vux/src/plugins/Toast'
 
     it('fn function should not work with env', function (done) {
       test({
-        entry: './test/vux-fixtures/script-parser-fn.vue'
+        entry: './test/k12vux-fixtures/script-parser-fn.vue'
       }, {
         options: {
           env: 'test'
@@ -796,7 +796,7 @@ import ToastPlugin from 'vux/src/plugins/Toast'
 
     it('fn function should work', function (done) {
       test({
-        entry: './test/vux-fixtures/template-parser-fn.vue'
+        entry: './test/k12vux-fixtures/template-parser-fn.vue'
       }, {
         plugins: [{
           name: 'template-parser',
@@ -816,7 +816,7 @@ import ToastPlugin from 'vux/src/plugins/Toast'
 
     it('replaceList param should work', function (done) {
       test({
-        entry: './test/vux-fixtures/template-parser-fn.vue'
+        entry: './test/k12vux-fixtures/template-parser-fn.vue'
       }, {
         plugins: [{
           name: 'template-parser',

@@ -4,12 +4,12 @@ const stripComments = require('strip-comments')
 
 function parse(source, fn, moduleName) {
   // fix no space between import and { 
-  // ref https://github.com/airyland/vux/issues/1365
+  // ref https://github.com/airyland/k12vux/issues/1365
   source = source.replace(/import{/g, 'import {')
   source = source.replace(/\/\/\n/g, '')
   source = trimLine(source)
   
-  moduleName = moduleName || 'vux'
+  moduleName = moduleName || 'k12vux'
   if ((moduleName && source.indexOf(moduleName) === -1) || source.indexOf('import') === -1) {
     return source
   }
@@ -96,7 +96,7 @@ function trimLine (str) {
   let list = str.split('\n')
   for (let i = 0; i < list.length; i++) {
     let currentLine = trim(list[i])
-    if (/import/.test(currentLine) && !/from\s+('|")vux('|")/.test(currentLine)) {
+    if (/import/.test(currentLine) && !/from\s+('|")k12vux('|")/.test(currentLine)) {
       isImport = true
     } else if (/from\s+('|")(.+)('|")/.test(currentLine)) {
       if (isImport) {
