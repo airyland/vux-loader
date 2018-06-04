@@ -1,6 +1,6 @@
 {
   "name": "k12vux-loader",
-  "version": "12.0.1",
+  "version": "12.0.2",
   "description": "extended loader for vue-loader",
   "main": "src/index.js",
   "keywords": [
@@ -21,7 +21,7 @@
   "author": "bywwcnll <2233540467@qq.com>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/bywwcnll/vux-loader"
+    "url": "https://github.com/bywwcnll/k12vux-loader"
   },
   "license": "MIT",
   "scripts": {
