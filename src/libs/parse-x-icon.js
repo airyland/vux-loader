@@ -9,7 +9,7 @@ module.exports = function (source, config) {
     let size = query.objectList.size || 24
     let type = query.objectList.type
     let svgPath = path.resolve(config.options.projectRoot, `node_modules/k12vux/src/icons/${type}.svg`)
-    if (config.options.vuxDev) {
+    if (config.options.k12vuxDev) {
       svgPath = path.resolve(config.options.projectRoot, `src/icons/${type}.svg`)
     }
 
