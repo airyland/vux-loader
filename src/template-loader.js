@@ -96,7 +96,7 @@ module.exports = function (source) {
     const name = getName(this.resourcePath)
     if (!dynamic) {
       source = source.replace(matchI18nReg, function (a, b) {
-        let key = `k12vux.${name}.${b}`
+        let key = `vux.${name}.${b}`
 
         if (a.indexOf('/*') > -1) {
           const start = a.indexOf('/*')
@@ -122,7 +122,7 @@ module.exports = function (source) {
       // dynamic 为 true, 则对于 k12vux 源码，把 key 加上 prefix
       source = source.replace(matchI18nReg, function (a, b) {
         if (a.indexOf("'") > -1) {
-          return a.replace(b, `k12vux.${name}.${b}`).replace('$t', k12vuxFunctionName)
+          return a.replace(b, `vux.${name}.${b}`).replace('$t', k12vuxFunctionName)
         } else {
           return a.replace('$t', k12vuxFunctionName)
         }

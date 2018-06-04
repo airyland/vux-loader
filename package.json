@@ -1,6 +1,6 @@
 {
   "name": "k12vux-loader",
-  "version": "1.2.9",
+  "version": "12.0.1",
   "description": "extended loader for vue-loader",
   "main": "src/index.js",
   "keywords": [
