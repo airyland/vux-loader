@@ -9,7 +9,7 @@ module.exports = function (source, config) {
     let size = query.objectList.size || 24
     let type = query.objectList.type
     let svgPath = path.resolve(config.options.projectRoot, `node_modules/vux/src/icons/${type}.svg`)
-    if (config.options.vuxDev) {
+    if (config.options.vuxDev || fs.existsSync(svgPath)==false) { // 当资源目录里找不到svg文件时从项目文件夹中查找
       svgPath = path.resolve(config.options.projectRoot, `src/icons/${type}.svg`)
     }
 
