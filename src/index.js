@@ -225,12 +225,6 @@ module.exports.merge = function (oldConfig, k12vuxConfig) {
     k12vuxConfig.options.projectRoot = projectRoot
   }
 
-  let k12vuxVersion
-  try {
-    let vuePackagePath = path.resolve(k12vuxConfig.options.projectRoot, 'node_modules/k12vux/package.json')
-    k12vuxVersion = require(vuePackagePath).version
-  } catch (e) {}
-
   // get vue version
   let vueVersion
   try {
@@ -238,80 +232,27 @@ module.exports.merge = function (oldConfig, k12vuxConfig) {
     vueVersion = require(vuePackagePath).version
   } catch (e) {}
   k12vuxConfig.options.vueVersion = vueVersion
-
-  require('./libs/report')({
-    vueVersion: vueVersion,
-    k12vuxVersion: k12vuxVersion
-  })
-
-
-  // check webpack version by module.loaders
-  let isWebpack2
-
-  if (typeof k12vuxConfig.options.isWebpack2 !== 'undefined') {
-    isWebpack2 = k12vuxConfig.options.isWebpack2
-  } else if (oldConfig.module && oldConfig.module.rules) {
-    isWebpack2 = true
-  } else if (oldConfig.module && oldConfig.module.loaders) {
-    isWebpack2 = false
-  }
-
-  if (typeof isWebpack2 === 'undefined') {
-    const compareVersions = require('compare-versions')
-    const pkg = require(path.resolve(k12vuxConfig.options.projectRoot, 'package.json'))
-    if (pkg.devDependencies.webpack) {
-      isWebpack2 = compareVersions(pkg.devDependencies.webpack.replace('^', '').replace('~', ''), '2.0.0') > -1
-    } else {
-      isWebpack2 = true
-    }
-  }
-
-  if (!isWebpack2) {
-    if (!config.vue) {
-      config.vue = {
-        loaders: {
-          i18n: 'k12vux-loader/src/noop-loader.js'
-        }
-      }
-    } else {
-      if (!config.vue.loaders) {
-        config.vue.loaders = {}
-      }
-      config.vue.loaders.i18n = 'k12vux-loader/src/noop-loader.js'
-    }
-  }
-
-  let loaderKey = isWebpack2 ? 'rules' : 'loaders'
-
-  config.module[loaderKey] = config.module[loaderKey] || []
+  
+  config.module.rules = config.module.rules || []
 
   const useVuxUI = hasPlugin('k12vux-ui', k12vuxConfig.plugins)
-  k12vuxConfig.options.useVuxUI = true
+  k12vuxConfig.options.useVuxUI = useVuxUI
 
   /**
    * ======== set k12vux options ========
    */
-  // for webpack@2.x, options should be provided with LoaderOptionsPlugin
-  if (isWebpack2) {
-    if (!config.plugins) {
-      config.plugins = []
-    }
-    // delete old config for webpack2
-    config.plugins.forEach(function (plugin, index) {
-      if (plugin.constructor.name === 'LoaderOptionsPlugin' && plugin.options.k12vux) {
-        config.plugins.splice(index, 1)
-      }
-    })
-    config.plugins.push(new webpack.LoaderOptionsPlugin({
-      k12vux: k12vuxConfig
-    }))
-  } else { // for webpack@1.x, merge directly
-
-    config = merge(config, {
-      k12vux: k12vuxConfig
-    })
-
+  if (!config.plugins) {
+    config.plugins = []
   }
+  // delete old config for webpack2
+  config.plugins.forEach(function (plugin, index) {
+    if (plugin.constructor.name === 'LoaderOptionsPlugin' && plugin.options.k12vux) {
+      config.plugins.splice(index, 1)
+    }
+  })
+  config.plugins.push(new webpack.LoaderOptionsPlugin({
+    k12vux: k12vuxConfig
+  }))
 
   if (hasPlugin('inline-manifest', k12vuxConfig.plugins)) {
     var InlineManifestWebpackPlugin = require('inline-manifest-webpack-plugin')
@@ -332,15 +273,9 @@ module.exports.merge = function (oldConfig, k12vuxConfig) {
       mapPath = path.resolve(k12vuxConfig.options.projectRoot, 'src/components/map.json')
     }
     const maps = require(mapPath)
-    if (isWebpack2) {
-      config.plugins.push(new webpack.LoaderOptionsPlugin({
-        k12vuxMaps: maps
-      }))
-    } else {
-      config = merge(config, {
-        k12vuxMaps: maps
-      })
-    }
+    config.plugins.push(new webpack.LoaderOptionsPlugin({
+      k12vuxMaps: maps
+    }))
   }
 
   // get less variable alias
@@ -362,16 +297,10 @@ module.exports.merge = function (oldConfig, k12vuxConfig) {
         rs[one[0]] = one[1]
       })
     } catch (e) {}
-
-    if (isWebpack2) {
-      config.plugins.push(new webpack.LoaderOptionsPlugin({
-        k12vuxVariableMap: rs
-      }))
-    } else {
-      config = merge(config, {
-        k12vuxVariableMap: rs
-      })
-    }
+  
+    config.plugins.push(new webpack.LoaderOptionsPlugin({
+      k12vuxVariableMap: rs
+    }))
   }
 
   /**
@@ -385,16 +314,10 @@ module.exports.merge = function (oldConfig, k12vuxConfig) {
     try {
       const k12vuxLocalesContent = fs.readFileSync(k12vuxLocalesPath, 'utf-8')
       let k12vuxLocalesJson = yaml.safeLoad(k12vuxLocalesContent)
-
-      if (isWebpack2) {
-        config.plugins.push(new webpack.LoaderOptionsPlugin({
-          k12vuxLocales: k12vuxLocalesJson
-        }))
-      } else {
-        config = merge(config, {
-          k12vuxLocales: k12vuxLocalesJson
-        })
-      }
+  
+      config.plugins.push(new webpack.LoaderOptionsPlugin({
+        k12vuxLocales: k12vuxLocalesJson
+      }))
     } catch (e) {}
   }
 
@@ -405,7 +328,7 @@ module.exports.merge = function (oldConfig, k12vuxConfig) {
   const rewriteConfig = k12vuxConfig.options.rewriteLoaderString
   if (typeof rewriteConfig === 'undefined' || rewriteConfig === true) {
     let hasAppendVuxLoader = false
-    config.module[loaderKey].forEach(function (rule) {
+    config.module.rules.forEach(function (rule) {
       let hasVueLoader = rule.use && _.isArray(rule.use) && rule.use.length && rule.use.filter(function(one) {
         return one.loader === 'vue-loader'
       }).length === 1
@@ -413,9 +336,9 @@ module.exports.merge = function (oldConfig, k12vuxConfig) {
         hasVueLoader = true
       }
       if (rule.loader === 'vue' || rule.loader === 'vue-loader' || hasVueLoader) {
-        if (!isWebpack2 || (isWebpack2 && !rule.options && !rule.query && !hasVueLoader)) {
+        if (!rule.options && !rule.query && !hasVueLoader) {
           rule.loader = loaderString
-        } else if (isWebpack2 && (rule.options || rule.query) && !hasVueLoader) {
+        } else if ((rule.options || rule.query) && !hasVueLoader) {
           delete rule.loader
           rule.use = [
          'k12vux-loader',
@@ -426,7 +349,7 @@ module.exports.merge = function (oldConfig, k12vuxConfig) {
          }]
           delete rule.options
           delete rule.query
-        } else if (isWebpack2 && hasVueLoader) {
+        } else if (hasVueLoader) {
           if (Array.isArray(rule.use)) {
             rule.use.unshift('k12vux-loader')
           } else if (typeof rule.use === 'object' && rule.use.loader === 'vue-loader') {
@@ -441,7 +364,7 @@ module.exports.merge = function (oldConfig, k12vuxConfig) {
       }
     })
     if (!hasAppendVuxLoader) {
-      config.module[loaderKey].push({
+      config.module.rules.push({
         test: /\.vue$/,
         loader: loaderString
       })
@@ -451,12 +374,12 @@ module.exports.merge = function (oldConfig, k12vuxConfig) {
   /**
    * ======== append js-loader for ts-loader ========
    */
-  config.module[loaderKey].forEach(function (rule) {
+  config.module.rules.forEach(function (rule) {
     if (rule.use && (rule.use[0] === 'ts-loader' || (typeof rule.use[0] === 'object' && rule.use[0].loader === 'ts-loader'))) {
       rule.use.push(jsLoader)
     } else {
       if (rule.loader === 'ts' || rule.loader === 'ts-loader' || (/\bts\b/.test(rule.loader) && !/!/.test(rule.loader))) {
-        if (isWebpack2 && (rule.query || rule.options)) {
+        if (rule.query || rule.options) {
           let options
           if(rule.options){
             options = rule.options
@@ -480,12 +403,12 @@ module.exports.merge = function (oldConfig, k12vuxConfig) {
   /**
    * ======== append js-loader ========
    */
-  config.module[loaderKey].forEach(function (rule) {
+  config.module.rules.forEach(function (rule) {
     if (rule.use && (rule.use[0] === 'babel-loader' || (typeof rule.use[0] === 'object' && rule.use[0].loader === 'babel-loader'))) {
       rule.use.push(jsLoader)
     } else {
       if (rule.loader === 'babel' || rule.loader === 'babel-loader' || (/babel/.test(rule.loader) && !/!/.test(rule.loader))) {
-        if (isWebpack2 && (rule.query || rule.options)) {
+        if (rule.query || rule.options) {
           let options
           if(rule.options){
             options = rule.options
@@ -511,7 +434,7 @@ module.exports.merge = function (oldConfig, k12vuxConfig) {
    */
   if (hasPlugin('k12vux-ui', k12vuxConfig.plugins)) {
     if (typeof k12vuxConfig.options.k12vuxSetBabel === 'undefined' || k12vuxConfig.options.k12vuxSetBabel === true) {
-      config.module[loaderKey].push(getBabelLoader(k12vuxConfig.options.projectRoot, 'k12vux', k12vuxConfig.options.k12vuxDev))
+      config.module.rules.push(getBabelLoader(k12vuxConfig.options.projectRoot, 'k12vux', k12vuxConfig.options.k12vuxDev))
     }
   }
 
@@ -524,13 +447,6 @@ module.exports.merge = function (oldConfig, k12vuxConfig) {
     })
     config.plugins.push(new DonePlugin(callbacks))
   }
-
-  config.plugins.push(new DonePlugin([function () {
-    if (global.reportInterval) {
-      clearInterval(global.reportInterval)
-      global.reportInterval = null
-    }
-  }]))
 
   // duplicate styles
   if (hasPlugin('duplicate-style', k12vuxConfig.plugins)) {
@@ -773,20 +689,4 @@ function getBabelLoader(projectRoot, name, isDev) {
     loader: 'babel-loader',
     include: componentPath
   }
-}
-
-function setWebpackConfig(oriConfig, appendConfig, isWebpack2) {
-  if (isWebpack2) {
-    oriConfig.plugins.push(new webpack.LoaderOptionsPlugin(appendConfig))
-  } else {
-    oriConfig = merge(oriConfig, appendConfig)
-  }
-  return oriConfig
-}
-
-function getOnePlugin(name, plugins) {
-  const matches = plugins.filter(function (one) {
-    return one.name === name
-  })
-  return matches.length ? matches[0] : null
 }
