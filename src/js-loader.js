@@ -5,15 +5,20 @@ const path = require('path')
 const pkg = require('../package')
 
 module.exports = function (source) {
-  this.cacheable()
+  /* loader API cacheable说明 https://www.webpackjs.com/api/loaders/#this-cacheable */
+  this.cacheable(false)
   const _this = this
   const k12vuxConfig = this.k12vux || utils.getLoaderConfig(this, 'k12vux')
  
+  // 按需加载
   if (k12vuxConfig.options.useVuxUI && /}\s+from(.*?)('|")k12vux/.test(source)) {
     const parser = require('./libs/import-parser')
     const maps = this.k12vuxMaps || utils.getLoaderConfig(this, 'k12vuxMaps')
     source = parser(source, function (opts) {
       let str = ''
+      /**
+       * import { AjaxPlugin, AlertPlugin } from 'k12vux'
+       */
       opts.components.forEach(function (component) {
         let file = `k12vux/${maps[component.originalName]}`
         if (k12vuxConfig.options.k12vuxDev) {
@@ -25,6 +30,10 @@ module.exports = function (source) {
         }
         str += `import ${component.newName} from '${file}'\n`
       })
+      /**
+       * import AjaxPlugin from 'k12vux/src/plugins/ajax/index.js'
+       * import AlertPlugin from 'k12vux/src/plugins/alert/index.js'
+       */
       return str
     }, 'k12vux')
     

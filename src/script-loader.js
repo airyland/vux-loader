@@ -39,6 +39,7 @@ module.exports = function (source) {
     })
   }
 
+  // 按需加载Vue组件
   if (config.options.useVuxUI && /}\s+from(.*?)('|")k12vux/.test(source)) {
     const maps = this.k12vuxMaps || utils.getLoaderConfig(this, 'k12vuxMaps')
     const parser = require('./libs/import-parser')

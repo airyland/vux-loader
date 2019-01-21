@@ -67,7 +67,7 @@ module.exports = function (source) {
   const variableMap = this.k12vuxVariableMap || utils.getLoaderConfig(this, 'k12vuxVariableMap')
 
   var query = this.query ? utils.parseQuery(this.query) : {}
-  this.cacheable()
+  this.cacheable(false)
   if (!source) return source
   const config = this.k12vux || utils.getLoaderConfig(this, 'k12vux')
   if (!config) {
@@ -121,11 +121,6 @@ function getFirstPlugin(name, list) {
 
 // merge k12vux options and return new webpack config
 module.exports.merge = function (oldConfig, k12vuxConfig) {
-
-  oldConfig = Object.assign({
-    plugins: []
-  }, oldConfig)
-
   let config = Object.assign({
     module: {},
     plugins: []
@@ -171,55 +166,7 @@ module.exports.merge = function (oldConfig, k12vuxConfig) {
     })
   }
 
-  k12vuxConfig.allPlugins = k12vuxConfig.allPlugins || []
-
-  // check multi plugin instance
-  const pluginGroup = _.groupBy(k12vuxConfig.plugins, function (plugin) {
-    return plugin.name
-  })
-  for (let group in pluginGroup) {
-    if (pluginGroup[group].length > 1) {
-      throw (`only one instance is allowed. plugin name: ${group}`)
-    }
-  }
-
-  // if exists old k12vux config, merge options and plugins list
-  let oldVuxConfig = oldConfig.k12vux || null
-
-  oldConfig.plugins.forEach(function (plugin) {
-    if (plugin.constructor.name === 'LoaderOptionsPlugin' && plugin.options.k12vux) {
-      oldVuxConfig = plugin.options.k12vux
-    }
-  })
-
-  if (oldVuxConfig) {
-    // merge old options
-    k12vuxConfig.options = Object.assign(oldVuxConfig.options, k12vuxConfig.options)
-      // merge old plugins list
-    k12vuxConfig.plugins.forEach(function (newPlugin) {
-      let isSame = false
-      oldVuxConfig.allPlugins.forEach(function (oldPlugin, index) {
-        if (newPlugin.name === oldPlugin.name) {
-          oldVuxConfig.allPlugins.splice(index, 1)
-          oldVuxConfig.allPlugins.push(newPlugin)
-          isSame = true
-        }
-      })
-      if (!isSame) {
-        oldVuxConfig.allPlugins.push(newPlugin)
-      }
-    })
-    k12vuxConfig.allPlugins = oldVuxConfig.allPlugins
-  } else {
-    k12vuxConfig.allPlugins = k12vuxConfig.plugins
-  }
-
-  // filter plugins by env
-  if (k12vuxConfig.options.env && k12vuxConfig.allPlugins.length) {
-    k12vuxConfig.plugins = k12vuxConfig.allPlugins.filter(function (plugin) {
-      return typeof plugin.envs === 'undefined' || (typeof plugin.envs === 'object' && plugin.envs.length && plugin.envs.indexOf(k12vuxConfig.options.env) > -1)
-    })
-  }
+  k12vuxConfig.allPlugins = k12vuxConfig.plugins || []
 
   if (!k12vuxConfig.options.projectRoot) {
     k12vuxConfig.options.projectRoot = projectRoot
@@ -245,27 +192,27 @@ module.exports.merge = function (oldConfig, k12vuxConfig) {
     config.plugins = []
   }
   // delete old config for webpack2
-  config.plugins.forEach(function (plugin, index) {
-    if (plugin.constructor.name === 'LoaderOptionsPlugin' && plugin.options.k12vux) {
-      config.plugins.splice(index, 1)
-    }
-  })
+  // config.plugins.forEach(function (plugin, index) {
+  //   if (plugin.constructor.name === 'LoaderOptionsPlugin' && plugin.options.k12vux) {
+  //     config.plugins.splice(index, 1)
+  //   }
+  // })
   config.plugins.push(new webpack.LoaderOptionsPlugin({
     k12vux: k12vuxConfig
   }))
 
-  if (hasPlugin('inline-manifest', k12vuxConfig.plugins)) {
-    var InlineManifestWebpackPlugin = require('inline-manifest-webpack-plugin')
-    config.plugins.push(new InlineManifestWebpackPlugin({
-      name: 'webpackManifest'
-    }))
-  }
+  // if (hasPlugin('inline-manifest', k12vuxConfig.plugins)) {
+  //   var InlineManifestWebpackPlugin = require('inline-manifest-webpack-plugin')
+  //   config.plugins.push(new InlineManifestWebpackPlugin({
+  //     name: 'webpackManifest'
+  //   }))
+  // }
 
-  if (hasPlugin('progress-bar', k12vuxConfig.plugins)) {
-    const ProgressBarPlugin = require('progress-bar-webpack-plugin')
-    const pluginConfig = getFirstPlugin('progress-bar', k12vuxConfig.plugins)
-    config.plugins.push(new ProgressBarPlugin(pluginConfig.options || {}))
-  }
+  // if (hasPlugin('progress-bar', k12vuxConfig.plugins)) {
+  //   const ProgressBarPlugin = require('progress-bar-webpack-plugin')
+  //   const pluginConfig = getFirstPlugin('progress-bar', k12vuxConfig.plugins)
+  //   config.plugins.push(new ProgressBarPlugin(pluginConfig.options || {}))
+  // }
 
   if (hasPlugin('k12vux-ui', k12vuxConfig.plugins)) {
     let mapPath = path.resolve(k12vuxConfig.options.projectRoot, 'node_modules/k12vux/src/components/map.json')
@@ -289,7 +236,7 @@ module.exports.merge = function (oldConfig, k12vuxConfig) {
     const rs = {}
 
     try {
-      const content = fs.readFileSync(variablePath, 'utf-8').split('\n').filter(line => /\/\/\salias/.test(line)).map(line => {
+      fs.readFileSync(variablePath, 'utf-8').split('\n').filter(line => /\/\/\salias/.test(line)).map(line => {
         const value = line.split('// alias ')[1].replace(/\s+/g, '').trim()
         const key = line.split('// alias ')[0].replace(/\s+/g, '').trim().split(':')[0].replace(/^@/, '')
         return [key, value]
@@ -374,31 +321,31 @@ module.exports.merge = function (oldConfig, k12vuxConfig) {
   /**
    * ======== append js-loader for ts-loader ========
    */
-  config.module.rules.forEach(function (rule) {
-    if (rule.use && (rule.use[0] === 'ts-loader' || (typeof rule.use[0] === 'object' && rule.use[0].loader === 'ts-loader'))) {
-      rule.use.push(jsLoader)
-    } else {
-      if (rule.loader === 'ts' || rule.loader === 'ts-loader' || (/\bts\b/.test(rule.loader) && !/!/.test(rule.loader))) {
-        if (rule.query || rule.options) {
-          let options
-          if(rule.options){
-            options = rule.options
-            delete rule.options
-          }else{
-            options = rule.query
-            delete rule.query
-          }
-          rule.use = [{
-            loader: 'ts-loader',
-            options: options
-          }, jsLoader]
-          delete rule.loader
-        } else {
-          rule.loader = 'ts-loader!' + jsLoader
-        }
-      }
-    }
-  })
+  // config.module.rules.forEach(function (rule) {
+  //   if (rule.use && (rule.use[0] === 'ts-loader' || (typeof rule.use[0] === 'object' && rule.use[0].loader === 'ts-loader'))) {
+  //     rule.use.push(jsLoader)
+  //   } else {
+  //     if (rule.loader === 'ts' || rule.loader === 'ts-loader' || (/\bts\b/.test(rule.loader) && !/!/.test(rule.loader))) {
+  //       if (rule.query || rule.options) {
+  //         let options
+  //         if(rule.options){
+  //           options = rule.options
+  //           delete rule.options
+  //         }else{
+  //           options = rule.query
+  //           delete rule.query
+  //         }
+  //         rule.use = [{
+  //           loader: 'ts-loader',
+  //           options: options
+  //         }, jsLoader]
+  //         delete rule.loader
+  //       } else {
+  //         rule.loader = 'ts-loader!' + jsLoader
+  //       }
+  //     }
+  //   }
+  // })
 
   /**
    * ======== append js-loader ========
@@ -569,7 +516,7 @@ function addScriptLoader(source, SCRIPT) {
     })
   }
 
-  if (rs.indexOf('export * from') !== -1) {
+  if (rs.indexOf('export * from') !== -1 && content.indexOf(SCRIPT) === -1) {
     rs = rs.replace(/export\s\*\sfrom\s"(.*?)"/g, function (content) {
       return _addScriptLoader(content, SCRIPT)
     })
