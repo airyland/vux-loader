@@ -622,9 +622,7 @@ const _addScriptLoader = function (content, SCRIPT) {
       return item
     })
     content = loaders.join('!')
-  }
-
-  if (content.indexOf('export * from') !== -1) {
+  } else if (content.indexOf('export * from') !== -1) {
     let loaders = content.split('!')
     loaders = loaders.map(function (item) {
       if (item === 'babel-loader') {
