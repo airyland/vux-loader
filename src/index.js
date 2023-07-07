@@ -37,7 +37,8 @@ function DonePlugin(callbacks) {
 
 DonePlugin.prototype.apply = function (compiler) {
   let callbacks = this.callbacks
-  compiler.plugin('done', function () {
+  const pluginFn = compiler.hooks ? compiler.hooks.done.tap : compiler.plugin
+  [pluginFn]('done', function () {
     callbacks.forEach(function (fn) {
       fn()
     })
